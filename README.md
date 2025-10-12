@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Rusz Dupe - Aplikacja do planowania
 
 Aplikacja do zarządzania zadaniami i wyjazdami. Składa się z backendu w Laravelu i frontendu w Vue.js.
@@ -201,3 +202,7 @@ Dla najlepszej integracji i autouzupełniania kodu zalecane jest używanie **Vis
 
 ---
 
+=======
+# Ruszdup-
+Tworzymy w grupię projekt Aplikacja do planowania podróży I nazwa strony "Rusz dupę"
+>>>>>>> cf2ee92abc75b8e1adf41faffbf8ac348b38f3a4
