@@ -1,29 +1,26 @@
-<<<<<<< HEAD
-# Rusz Dupe - Aplikacja do planowania
+# Rusz Dupe - Aplikacja do planowania podróży
 
-Aplikacja do zarządzania zadaniami i wyjazdami. Składa się z backendu w Laravelu i frontendu w Vue.js.
+Projekt grupowy. Aplikacja do zarządzania zadaniami i wyjazdami. Składa się z backendu w Laravelu i frontendu w Vue.js.
 
 ## Wymagania (Backend)
 
 Upewnij się, że na Twoim komputerze zainstalowane są następujące narzędzia:
-- PHP (w wersji zgodnej z projektem Laravel, np. 8.1+)
+- PHP (w wersji zgodnej z projektem Laravel, np. 8.2+)
 - Composer
 - Serwer bazy danych (np. MySQL, PostgreSQL, MariaDB)
 - Git
-- Vue
-- Tailwind CSS
 
 ## Instalacja (Backend)
 
 Postępuj zgodnie z poniższymi krokami, aby uruchomić projekt lokalnie.
 
-### 1. Klonowanie repozytorium
+### 1. Klonowanie repozytorium i instalacja zależności
 
 Otwórz terminal i sklonuj repozytorium do wybranego folderu.
 
 ```bash
 git clone <adres-url-twojego-repozytorium>
-cd sciezka/do/backend
+cd ruszdupe/backend
 ```
 
 ### 2. Instalacja zależności
