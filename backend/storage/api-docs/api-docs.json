@@ -1,0 +1,350 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Travel Planner API",
+        "description": "Dokumentacja API do zarządzania podróżami",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/tasks": {
+            "get": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Pobierz listę wszystkich zadań",
+                "operationId": "be68905d866e856db6c738172b8d929a",
+                "responses": {
+                    "200": {
+                        "description": "Lista zadań została pobrana pomyślnie"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Utwórz nowe zadanie",
+                "operationId": "ebbaabc58e3db61374a57c53544959b2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "trip_id",
+                                    "title"
+                                ],
+                                "properties": {
+                                    "trip_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Spakować walizkę"
+                                    },
+                                    "is_completed": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Zadanie zostało utworzone"
+                    }
+                }
+            }
+        },
+        "/api/tasks/{id}": {
+            "get": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Pobierz konkretne zadanie",
+                "operationId": "32c40e2d1129b80c1dcabd538df63a33",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID zadania",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Zwrócono dane zadania"
+                    },
+                    "404": {
+                        "description": "Zadanie nie znalezione"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Zaktualizuj dane zadania",
+                "operationId": "c36c959b634c99e1e02ad2f3f2c36a2c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID zadania do zaktualizowania",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Kupić bilety lotnicze"
+                                    },
+                                    "is_completed": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Zadanie zostało zaktualizowane"
+                    },
+                    "404": {
+                        "description": "Zadanie nie znalezione"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Usuń zadanie",
+                "operationId": "d81cc7975ea62176b4ef8f74ed95168d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID zadania do usunięcia",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Zadanie zostało usunięte"
+                    },
+                    "404": {
+                        "description": "Zadanie nie znalezione"
+                    }
+                }
+            }
+        },
+        "/api/trips": {
+            "get": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Pobierz listę wszystkich podróży",
+                "operationId": "34b92215d6018d9559a016ee14964292",
+                "responses": {
+                    "200": {
+                        "description": "Lista podróży została pobrana pomyślnie"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Utwórz nową podróż",
+                "operationId": "20e492b400d879927a7436597763f699",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "destination",
+                                    "start_date",
+                                    "end_date"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Wakacje w Toskanii"
+                                    },
+                                    "destination": {
+                                        "type": "string",
+                                        "example": "Włochy"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-07-10"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-07-20"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Podróż została utworzona pomyślnie"
+                    }
+                }
+            }
+        },
+        "/api/trips/{id}": {
+            "get": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Pobierz szczegóły konkretnej podróży",
+                "operationId": "13396a55edca639601ea94929fad90ba",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID podróży",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Zwrócono dane podróży"
+                    },
+                    "404": {
+                        "description": "Podróż nie znaleziona"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Zaktualizuj dane podróży",
+                "operationId": "fec442216c8d1ccea59732e69d7e2b58",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID podróży",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Wakacje w Toskanii - aktualizacja"
+                                    },
+                                    "destination": {
+                                        "type": "string",
+                                        "example": "Florencja, Włochy"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-07-11"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-07-21"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Podróż została zaktualizowana"
+                    },
+                    "404": {
+                        "description": "Podróż nie znaleziona"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Usuń podróż",
+                "operationId": "3f2b04c340698c1c33dcb6bc11795d30",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID podróży do usunięcia",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Podróż została usunięta"
+                    },
+                    "404": {
+                        "description": "Podróż nie znaleziona"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Tasks",
+            "description": "Operacje związane z zadaniami podróży"
+        },
+        {
+            "name": "Trips",
+            "description": "Operacje związane z podróżami"
+        }
+    ]
+}
