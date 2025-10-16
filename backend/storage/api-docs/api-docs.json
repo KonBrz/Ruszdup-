@@ -187,29 +187,16 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name",
-                                    "destination",
-                                    "start_date",
-                                    "end_date"
+                                    "title"
                                 ],
                                 "properties": {
-                                    "name": {
+                                    "title": {
                                         "type": "string",
                                         "example": "Wakacje w Toskanii"
                                     },
-                                    "destination": {
+                                    "description": {
                                         "type": "string",
-                                        "example": "Włochy"
-                                    },
-                                    "start_date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2025-07-10"
-                                    },
-                                    "end_date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2025-07-20"
+                                        "example": "Odwiedzić Florencję i Sienę"
                                     }
                                 },
                                 "type": "object"
@@ -275,23 +262,13 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "name": {
+                                    "title": {
                                         "type": "string",
                                         "example": "Wakacje w Toskanii - aktualizacja"
                                     },
-                                    "destination": {
+                                    "description": {
                                         "type": "string",
-                                        "example": "Florencja, Włochy"
-                                    },
-                                    "start_date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2025-07-11"
-                                    },
-                                    "end_date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2025-07-21"
+                                        "example": "Florencja, Siena i Piza"
                                     }
                                 },
                                 "type": "object"

@@ -47,12 +47,10 @@ class TripController extends Controller
      *         required=true,
      *
      *         @OA\JsonContent(
-     *             required={"name", "destination", "start_date", "end_date"},
+     *             required={"title"},
      *
-     *             @OA\Property(property="name", type="string", example="Wakacje w Toskanii"),
-     *             @OA\Property(property="destination", type="string", example="Włochy"),
-     *             @OA\Property(property="start_date", type="string", format="date", example="2025-07-10"),
-     *             @OA\Property(property="end_date", type="string", format="date", example="2025-07-20")
+     *             @OA\Property(property="title", type="string", example="Wakacje w Toskanii"),
+     *             @OA\Property(property="description", type="string", example="Odwiedzić Florencję i Sienę")
      *         )
      *     ),
      *
@@ -65,13 +63,13 @@ class TripController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
-        $trip = Trip::create($validated);
+        // Tymczasowo, aby powiązać wycieczkę z zalogowanym użytkownikiem
+        // Jeśli nie masz jeszcze logowania, możesz to na razie pominąć
+        $trip = $request->user()->trips()->create($validated);
 
         return response()->json($trip, 201);
     }
@@ -124,10 +122,8 @@ class TripController extends Controller
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(property="name", type="string", example="Wakacje w Toskanii - aktualizacja"),
-     *             @OA\Property(property="destination", type="string", example="Florencja, Włochy"),
-     *             @OA\Property(property="start_date", type="string", format="date", example="2025-07-11"),
-     *             @OA\Property(property="end_date", type="string", format="date", example="2025-07-21")
+     *             @OA\Property(property="title", type="string", example="Wakacje w Toskanii - aktualizacja"),
+     *             @OA\Property(property="description", type="string", example="Florencja, Siena i Piza")
      *         )
      *     ),
      *
@@ -142,10 +138,8 @@ class TripController extends Controller
             return response()->json(['message' => 'Nie znaleziono podróży'], 404);
         }
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'destination' => 'sometimes|string|max:255',
-            'start_date' => 'sometimes|date',
-            'end_date' => 'sometimes|date|after_or_equal:start_date',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string',
         ]);
 
         $trip->update($validated);

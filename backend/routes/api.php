@@ -10,6 +10,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    // tutaj tras z autoryzacja do trips
     // Standardowe trasy CRUD dla wycieczek
     Route::apiResource('trips', TripController::class);
 
