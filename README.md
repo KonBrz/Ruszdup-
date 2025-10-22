@@ -47,137 +47,33 @@ git clone <adres-url-twojego-repozytorium>
 cd ruszdupe/backend
 ```
 
-### 2. Instalacja zależności
+### 2. Instalacja
+W terminalu po sklonowaniu wpisz:
 
-Użyj Composera, aby zainstalować wszystkie wymagane pakiety PHP.
-
-```bash
-composer install
+```
+docker-compose build
 ```
 
-### 3. Konfiguracja środowiska
+### 3. Uruchomienie serwera
+Uruchamianie za pomocą docker-compose-a w terminalu
 
-Skopiuj plik `.env.example` do nowego pliku o nazwie `.env`. Będzie on zawierał konfigurację specyficzną dla Twojego środowiska.
-
-```bash
-cp .env.example .env
 ```
-
-Następnie wygeneruj unikalny klucz aplikacji.
-
-```bash
-php artisan key:generate
-```
-
-### 4. Konfiguracja bazy danych
-
-Otwórz plik `.env` w edytorze tekstu i uzupełnij dane dostępowe do Twojej bazy danych. Upewnij się, że stworzyłeś wcześniej pustą bazę danych o podanej nazwie.
-
-```ini
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=ruszdupe
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-### 5. Migracje i zasilanie danymi
-
-Uruchom migracje, aby stworzyć strukturę bazy danych.
-
-```bash
-php artisan migrate
-```
-
-Opcjonalnie, możesz wypełnić bazę danych przykładowymi danymi za pomocą seederów.
-
-```bash
-php artisan db:seed
-```
-
-### 6. Uruchomienie serwera
-
-Na koniec uruchom lokalny serwer deweloperski Laravela.
-
-```bash
-php artisan serve
+docker-compose up
 ```
 
 Aplikacja będzie dostępna domyślnie pod adresem `http://127.0.0.1:8000`.
 
-### 7. Frontend
+### 4. Frontend
 
 # 🚀 Vue 3 + TypeScript + Vite
 
 Ten projekt został stworzony przy użyciu **Vue 3**, **TypeScript** oraz **Vite**.  
 Poniżej znajdziesz instrukcję, jak uruchomić i rozwijać aplikację lokalnie.
 
----
-
-## 📦 Wymagania
-
-Upewnij się, że masz zainstalowane:
-
-- [Node.js](https://nodejs.org/) w wersji **16+**  
-- [npm](https://www.npmjs.com/) lub [yarn](https://yarnpkg.com/) (menedżer pakietów)
-
----
-
-## 🛠️ Instalacja zależności
-
-Po sklonowaniu projektu uruchom w katalogu projektu:
-
-```bash
-npm install
-# lub
-yarn install
-```
-
----
-
-## ▶️ Uruchomienie projektu
-
-Aby uruchomić projekt w trybie deweloperskim:
-
-```bash
-npm run dev
-# lub
-yarn dev
-```
-
-Po chwili aplikacja będzie dostępna pod adresem:
+Frontend dostępny pod:
 ```
 http://localhost:5173
 ```
-
----
-
-## 🏗️ Budowanie projektu produkcyjnego
-
-Aby zbudować gotowy do wdrożenia pakiet:
-
-```bash
-npm run build
-# lub
-yarn build
-```
-
-Wynik zostanie zapisany w folderze `dist/`.
-
----
-
-## 🔍 Testowanie buildu lokalnie
-
-Aby przetestować zbudowaną aplikację lokalnie:
-
-```bash
-npm run preview
-# lub
-yarn preview
-```
-
----
 
 ## 🧩 Dodatkowe informacje
 
@@ -210,15 +106,3 @@ Dla najlepszej integracji i autouzupełniania kodu zalecane jest używanie **Vis
 ├── vite.config.ts    # Konfiguracja Vite
 └── package.json      # Skrypty i zależności
 ```
-
----
-
-## 🧰 Przydatne skrypty
-
-| Komenda              | Opis                              |
-|----------------------|------------------------------------|
-| `npm run dev`        | Uruchamia środowisko developerskie |
-| `npm run build`      | Buduje aplikację produkcyjną       |
-| `npm run preview`    | Uruchamia lokalny podgląd buildu   |
-
----
