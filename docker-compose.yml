@@ -9,12 +9,12 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/var/www/html
+      - /var/www/html/vendor
     environment:
       - DB_HOST=db
       - DB_PORT=3306
       - DB_DATABASE=ruszdupe
       - DB_USERNAME=root
-      - DB_PASSWORD=
     depends_on:
       - db
     command: bash -c "
@@ -49,6 +49,7 @@ services:
       - "5173:5173"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     command: bash -c "npm run dev -- --host"  # Przed produkcją zmienić na npm run build!
     depends_on:
       - backend
