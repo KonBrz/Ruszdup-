@@ -15,6 +15,7 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=ruszdupe
       - DB_USERNAME=root
+      - DB_PASSWORD=
     depends_on:
       - db
     command: bash -c "
@@ -22,6 +23,7 @@ services:
       cp .env.example .env &&
       php artisan key:generate;
       fi &&
+      wait-for-it.sh db:3306 --timeout=30 &&
       php artisan migrate:fresh --seed &&
       php artisan serve --host=0.0.0.0 --port=8000"
 

@@ -25,6 +25,9 @@ RUN apt-get update && apt-get install -y \
     git unzip libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip curl \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
+RUN curl -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh \
+    && chmod +x /usr/local/bin/wait-for-it.sh
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
