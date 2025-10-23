@@ -9,7 +9,6 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/var/www/html
-      - /var/www/html/vendor
     environment:
       - DB_HOST=db
       - DB_PORT=3306
@@ -20,9 +19,12 @@ services:
       - db
     command: bash -c "
       if [ ! -f .env ]; then
-      cp .env.example .env &&
-      php artisan key:generate;
+        cp .env.example .env;
       fi &&
+      php artisan key:generate &&
+      mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data &&
+      chmod -R 777 storage bootstrap/cache &&
+      php artisan config:clear &&
       wait-for-it.sh db:3306 --timeout=30 &&
       php artisan migrate:fresh --seed &&
       php artisan serve --host=0.0.0.0 --port=8000"
