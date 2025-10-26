@@ -13,12 +13,19 @@ class DatabaseSeeder extends Seeder
     {
         // Najpierw utwórz użytkowników
         $users = User::factory(10)->create();
+        User::factory()->admin()->create([
+            'name' => 'Administrator',
+            'email' => 'admin@ruszdupe.com',
+        ]); // admin
 
         // Dla każdego użytkownika utwórz wycieczki
         foreach ($users as $user) {
             $trips = Trip::factory(5)->create([
                 'user_id' => $user->id,
                 'assigned_to' => rand(0, 100) <= 30 ? $users->random()->id : null, // ✅ 30% szans
+                'destination' => fake()->city(),
+                'start_date' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
+                'end_date' => fake()->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
             ]);
 
             // Dla każdej wycieczki utwórz zadania

@@ -22,8 +22,9 @@ FROM php:8.2-cli
 # ------------------------------------------------------------
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git unzip libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip curl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+    git unzip libzip-dev libpng-dev libicu-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip curl \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl zip
 
 RUN curl -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh \
     && chmod +x /usr/local/bin/wait-for-it.sh
