@@ -26,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewAdminPanel', function ($user) {
             return $user->is_admin; // tylko jeśli is_admin = true
         });
+        Filament::serving(function () {
+            Filament::auth(fn($user) => $user->is_admin);
+        });
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
             return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
         });
