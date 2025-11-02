@@ -38,7 +38,12 @@ async function handleLogin() {
   Object.keys(errors).forEach(key => errors[key] = Array.isArray(errors[key]) ? [] : '');
   try {
     await authStore.login(form.value);
-    await nextTick(() => router.push('/dashboard'));
+    if (authStore.user?.is_admin) {
+      window.location.href = 'http://localhost:8000/admin'
+    } else {
+      router.push('/dashboard')
+    }
+
   } catch (e: any) {
     if (e.response && e.response.status === 422) {
       Object.assign(errors, e.response.data.errors);
