@@ -48,6 +48,10 @@ cd ruszdupe/backend
 ```
 
 ### 2. Instalacja
+Sprawdzić czy znajdujesz się w odpowiednim katalogu:
+```
+cd backend
+```
 W terminalu po sklonowaniu wpisz:
 
 ```
