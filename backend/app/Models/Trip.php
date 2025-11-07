@@ -27,6 +27,11 @@ class Trip extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function flagged()
+    {
+        return $this->hasMany(Flagged::class);
+    }
+
     // Relacja do użytkownika, który utworzył trip
     public function user(): BelongsTo
     {

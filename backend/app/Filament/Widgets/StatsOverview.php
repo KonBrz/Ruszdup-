@@ -40,3 +40,4 @@ class StatsOverview extends BaseWidget
             ->color($color);
     }
 }
+
