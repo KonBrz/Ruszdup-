@@ -1,4 +1,6 @@
 FROM php:8.2-cli
+
+WORKDIR /var/www
 # ------------------------------------------------------------
 # Instalacja pakietów systemowych i rozszerzeń PHP potrzebnych
 # dla Laravel i typowych operacji:
@@ -53,8 +55,6 @@ RUN curl -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vish
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
-
 #Create storage and cache directories
 
 RUN mkdir -p \
@@ -72,7 +72,7 @@ COPY composer.json composer.lock ./
 
 RUN composer install --no-scripts --no-autoloader
 
-COPY . .
+COPY . /var/www
 
 RUN composer dump-autoload --optimize
 
