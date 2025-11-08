@@ -36,6 +36,22 @@ class TripController extends Controller
     {
         return response()->json(Trip::all());
     }
+    public function adminIndex()
+    {
+        return response()->json(Trip::all());
+    }
+//    public function index()
+//    {
+//        $user = auth()->user();
+//
+//        if($user->is_admin){
+//            $trips = Trip::all();
+//        }else {
+//            $trips = $user->trips;
+//        }
+//
+//        return response()->json(Trip::all());
+//    }
 
     /**
      * @OA\Post(

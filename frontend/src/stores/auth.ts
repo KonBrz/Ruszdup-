@@ -9,6 +9,13 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             const { data } = await apiClient.get('/api/user');
             user.value = data;
+            // jeśli admin - backend panel
+            if (data.is_admin) {
+                window.location.href = 'http://localhost:8000/admin'
+                return
+            }
+            // jeśli zwykły user - dashboard frontendowy
+            return data
         } catch (error: any) {
             user.value = null;
             // Jeśli błąd to 401/419 (brak autoryzacji), nie ma potrzeby go logować jako błąd aplikacji
