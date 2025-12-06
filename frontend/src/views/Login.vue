@@ -18,11 +18,15 @@
 
 <script setup lang="ts">
 import { reactive, ref, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute} from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
+const token = route.params.token || null;
+
+console.log('Token z URL:', token);
 
 const form = ref({
   email: '',

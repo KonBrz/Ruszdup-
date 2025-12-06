@@ -4,6 +4,7 @@ import { ref, computed } from 'vue';
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<object | null>(null);
     const isAuthenticated = computed(() => !!user.value);
+    const inviteToken = ref<string | null>(null);
 
     async function fetchUser() {
         try {
@@ -46,5 +47,6 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = null;
         }
     }
-    return { user, isAuthenticated, fetchUser, login, register, logout };
+
+    return { user, isAuthenticated, fetchUser, login, register, logout ,inviteToken};
 });

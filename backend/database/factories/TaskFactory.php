@@ -14,8 +14,6 @@ class TaskFactory extends Factory
             'title' => $this->faker->sentence(3),
             'priority' => $this->faker->randomElement(['niski', 'średni', 'wysoki']),
             'deadline' => $this->faker->optional(0.6)->dateTimeBetween('now', '+1 year'),
-            'assigned_to' => null,
-            'completed' => $this->faker->boolean(30),
             'created_at' => $createdAt,
             'updated_at' => $this->faker->dateTimeBetween($createdAt, 'now'),
         ];

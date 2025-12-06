@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 
 class Trip extends Model
@@ -19,12 +20,15 @@ class Trip extends Model
         'start_date',
         'end_date',
         'user_id',
-        'assigned_to',
     ];
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function tasks(): HasMany
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class, 'trip_id');
     }
 
     public function flagged()
@@ -32,15 +36,15 @@ class Trip extends Model
         return $this->hasMany(Flagged::class);
     }
 
-    // Relacja do użytkownika, który utworzył trip
-    public function user(): BelongsTo
+    public function invitations()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasMany(TripInvitation::class);
     }
 
-    // Relacja do przypisanego użytkownika
-    public function assignedUser(): BelongsTo
+    public function tripUsers()
     {
-        return $this->belongsTo(User::class, 'assigned_to');
+        return $this->belongsToMany(User::class, 'trip_user', 'trip_id', 'user_id');
     }
+
+
 }
