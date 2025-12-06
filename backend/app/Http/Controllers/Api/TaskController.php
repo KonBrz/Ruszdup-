@@ -28,7 +28,16 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return response()->json(Task::all());
+        $user = auth()->user();
+
+        return response()->json(
+            $user->tasks()->with('trip', 'taskUsers')->get());
+    }
+
+    public function allUserTasks()
+    {
+        $user = auth()->user();
+        return response()->json($user->taskUsers()->with('trips', 'taskUsers')->get());
     }
 
     /**
@@ -55,11 +64,21 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'trip_id' => 'required|integer|exists:trips,id',
             'title' => 'required|string|max:255',
-            'completed' => 'sometimes|boolean',
+            'priority' => 'nullable|in:niski,średni,wysoki',
+            'deadline' => 'nullable|date',
+            'trip_id' => 'required|exists:trips,id',
+            'user_ids' => 'array',
+            'user_ids.*' => 'exists:users,id',
         ]);
-        $task = Task::create($validated);
+
+        // Tworzymy task
+        $task = $request->user()->tasks()->create($validated);
+
+
+        if ($request->has('user_ids')) {
+            $task->taskUsers()->sync($request->user_ids);
+        }
 
         return response()->json($task, 201);
     }
@@ -85,10 +104,14 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        $task = Task::find($id);
-        if (! $task) {
-            return response()->json(['message' => 'Nie znaleziono zadania'], 404);
-        }
+
+        $task = Task::with('trip.tripUsers:id,name', 'taskUsers:id,name')->findOrFail($id);
+
+        $userId = auth()->id();
+
+        $task->can_edit = (
+            $task->user_id === $userId
+        );
 
         return response()->json($task);
     }
@@ -123,18 +146,38 @@ class TaskController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $task = Task::find($id);
-        if (! $task) {
-            return response()->json(['message' => 'Nie znaleziono zadania'], 404);
-        }
+        $task = Task::findOrFail($id);
+
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
+            'priority' => 'nullable|in:niski,średni,wysoki',
+            'deadline' => 'nullable|date',
+            'user_ids' => 'array',
+            'user_ids.*' => 'exists:users,id', // tylko ID, nie obiekty
+
+            // pivot dla aktualnego użytkownika
             'completed' => 'sometimes|boolean',
+            'ignored' => 'sometimes|boolean',
         ]);
 
         $task->update($validated);
 
-        return response()->json($task);
+        /** SYNC użytkowników z taska */
+        if ($request->has('user_ids')) {
+            $task->taskUsers()->sync($request->user_ids); // teraz zwykłe ID
+
+            /** Update pivotu TYLKO dla zalogowanego użytkownika */
+            $currentUserId = auth()->id();
+
+            if (in_array($currentUserId, $request->user_ids)) {
+                $task->taskUsers()->updateExistingPivot($currentUserId, [
+                    'completed' => $request->completed ?? false,
+                    'ignored' => $request->ignored ?? false,
+                ]);
+            }
+        }
+
+        return response()->json($task->load('taskUsers'));
     }
 
     /**
@@ -158,12 +201,10 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        $task = Task::find($id);
-        if (! $task) {
-            return response()->json(['message' => 'Nie znaleziono zadania'], 404);
-        }
+        $task = Task::findOrFail($id);
+
         $task->delete();
 
-        return response()->json(null, 204);
+        return response()->json('Zadanie usunięte', 200);
     }
 }

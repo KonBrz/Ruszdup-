@@ -9,8 +9,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/var/www/html
-      - /var/www/html/vendor
+      - ./backend:/var/www
+      - /var/www/vendor
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -23,12 +23,12 @@ services:
     depends_on:
       - db
     command: bash -c "
-      if [ ! -f .env ]; then
-        cp .env.example .env;
+      if [ ! -f /var/www/.env ]; then
+      cp /var/www/.env.example /var/www/.env;
       fi &&
+      mkdir -p /var/www/storage/framework/sessions /var/www/storage/framework/views /var/www/storage/framework/cache/data /var/www/storage/logs &&
+      chmod -R 777 /var/www/storage /var/www/bootstrap/cache &&
       php artisan key:generate &&
-      mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data &&
-      chmod -R 777 storage bootstrap/cache &&
       php artisan config:clear &&
       wait-for-it.sh db:3306 --timeout=30 &&
       php artisan migrate:fresh --seed &&

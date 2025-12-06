@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TripController;
+use App\Http\Controllers\Api\FlaggedController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -10,13 +11,21 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    // tutaj tras z autoryzacja do trips
-    // Standardowe trasy CRUD dla wycieczek
+// CRUD dla trips
     Route::apiResource('trips', TripController::class);
 
-    // Trasa niestandardowa do zapraszania użytkowników
-    Route::post('trips/{trip}/invite', [TripController::class, 'inviteUser'])->name('trips.invite');
+    Route::post('/flagged', [FlaggedController::class, 'store']);
 
-    // Trasy dla zadań w ramach wycieczki
+    Route::get('/tasks', [TaskController::class, 'allUserTasks']);
+
+    Route::post('/tasks', [TaskController::class, 'store']);
+
+    Route::post('/trips/{trip}/invite', [TripController::class, 'generateInviteLink'])
+        ->middleware('auth');
+
+    Route::post('/trip-invite/accept', [TripController::class, 'acceptInvitation'])
+        ->middleware('auth:sanctum');
+
+// Nested tasks (np. GET /trips/1/tasks)
     Route::apiResource('trips.tasks', TaskController::class)->shallow();
 });

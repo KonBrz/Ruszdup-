@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Trip;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use App\Models\TripInvitation;
+use App\Models\Trip;
 
 /**
  * @OA\Info(
@@ -34,24 +36,11 @@ class TripController extends Controller
      */
     public function index()
     {
-        return response()->json(Trip::all());
+        $user = auth()->user();
+
+        return response()->json(
+           $user->tripUsers()->get());
     }
-    public function adminIndex()
-    {
-        return response()->json(Trip::all());
-    }
-//    public function index()
-//    {
-//        $user = auth()->user();
-//
-//        if($user->is_admin){
-//            $trips = Trip::all();
-//        }else {
-//            $trips = $user->trips;
-//        }
-//
-//        return response()->json(Trip::all());
-//    }
 
     /**
      * @OA\Post(
@@ -80,12 +69,16 @@ class TripController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'destination' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
-        // Tymczasowo, aby powiązać wycieczkę z zalogowanym użytkownikiem
-        // Jeśli nie masz jeszcze logowania, możesz to na razie pominąć
+
+        // Tworzymy trip powiązany z zalogowanym userem
         $trip = $request->user()->trips()->create($validated);
+        $trip->tripUsers()->attach(auth()->id());
 
         return response()->json($trip, 201);
     }
@@ -111,9 +104,17 @@ class TripController extends Controller
      */
     public function show($id)
     {
-        $trip = Trip::find($id);
-        if (! $trip) {
-            return response()->json(['message' => 'Nie znaleziono podróży'], 404);
+        $trip = Trip::with('user:id,name', 'tripUsers', 'tasks', 'tasks.taskUsers:id,name')->findOrFail($id);
+
+        $userId = auth()->id();
+
+        $trip->can_edit_trip = (
+            $trip->user_id === $userId
+        );
+        foreach ($trip->tasks as $task) {
+            $task->can_edit_task =
+                $trip->can_edit_trip ||
+                $task->user_id === $userId;
         }
 
         return response()->json($trip);
@@ -149,13 +150,14 @@ class TripController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $trip = Trip::find($id);
-        if (! $trip) {
-            return response()->json(['message' => 'Nie znaleziono podróży'], 404);
-        }
+        $trip = Trip::findOrFail($id);
+
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
+            'destination' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|nullable|string',
+            'start_date' => 'sometimes|nullable|date',
+            'end_date' => 'sometimes|nullable|date|after_or_equal:start_date',
         ]);
 
         $trip->update($validated);
@@ -184,12 +186,36 @@ class TripController extends Controller
      */
     public function destroy($id)
     {
-        $trip = Trip::find($id);
-        if (! $trip) {
-            return response()->json(['message' => 'Nie znaleziono podróży'], 404);
-        }
+        $trip = Trip::findOrFail($id);
+
         $trip->delete();
 
-        return response()->json(null, 204);
+        return response()->json("Wycieczka usunięta", 200);
+    }
+
+    public function generateInviteLink($tripId)
+    {
+        $trip = Trip::findOrFail($tripId);
+
+        $token = Str::uuid();
+
+        // Zapis w tabeli trip_invitations
+        $trip->invitations()->create(['token' => $token]);
+
+        $link = config('app.frontend_url') . "/trips/$trip->id?invite_token=$token";
+
+        return response()->json(['link' => $link]);
+    }
+
+    public function acceptInvitation(Request $request)
+    {
+        $token = $request->token;
+
+        $invitation = TripInvitation::where('token', $token)->firstOrFail();
+        $trip = $invitation->trip;
+
+        $trip->tripUsers()->syncWithoutDetaching(auth()->id());
+
+        return response()->json(['success' => true]);
     }
 }

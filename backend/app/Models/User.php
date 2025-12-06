@@ -2,23 +2,19 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -26,30 +22,34 @@ class User extends Authenticatable implements FilamentUser
         'is_admin',
         'is_banned',
     ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the trips for the user.
-     */
-    public function trips(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function trips(): HasMany
     {
-        return $this->hasMany(Trip::class, 'owner_id');
+        return $this->hasMany(Trip::class, 'user_id');
+    }
+    public function flagged()
+    {
+        return $this->hasMany(Flagged::class);
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'user_id');
+    }
+    public function tripUsers()
+    {
+        return $this->belongsToMany(Trip::class, 'trip_user', 'user_id', 'trip_id');
+    }
+    public function taskUsers()
+    {
+        return $this->belongsToMany(User::class, 'task_user', 'task_id', 'user_id')
+            ->withPivot(['completed', 'ignored']);
+    }
+
     protected function casts(): array
     {
         return [
@@ -62,8 +62,5 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->is_admin;
     }
-    public function flagged()
-    {
-        return $this->hasMany(Flagged::class);
-    }
+
 }
