@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -37,7 +38,9 @@ class TaskController extends Controller
     public function allUserTasks()
     {
         $user = auth()->user();
-        return response()->json($user->taskUsers()->with('trips', 'taskUsers')->get());
+        return response()->json(Task::whereHas('taskUsers', fn($q) => $q->where('user_id', $user->id))
+            ->with('taskUsers')
+            ->get());
     }
 
     /**
@@ -153,29 +156,29 @@ class TaskController extends Controller
             'priority' => 'nullable|in:niski,średni,wysoki',
             'deadline' => 'nullable|date',
             'user_ids' => 'array',
-            'user_ids.*' => 'exists:users,id', // tylko ID, nie obiekty
-
-            // pivot dla aktualnego użytkownika
-            'completed' => 'sometimes|boolean',
-            'ignored' => 'sometimes|boolean',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
         $task->update($validated);
 
-        /** SYNC użytkowników z taska */
+        $request->validate([
+            'completed' => 'sometimes|boolean',
+            'ignored'   => 'sometimes|boolean',
+        ]);
+
+        $currentUserId = auth()->id();
+
+        $completed = (bool) $request->completed;
+        $ignored = (bool) $request->ignored;
+
+        $task->taskUsers()->updateExistingPivot($currentUserId, [
+            'completed' => $completed,
+            'ignored' => $ignored,
+        ]);
+
         if ($request->has('user_ids')) {
             $task->taskUsers()->sync($request->user_ids); // teraz zwykłe ID
-
-            /** Update pivotu TYLKO dla zalogowanego użytkownika */
-            $currentUserId = auth()->id();
-
-            if (in_array($currentUserId, $request->user_ids)) {
-                $task->taskUsers()->updateExistingPivot($currentUserId, [
-                    'completed' => $request->completed ?? false,
-                    'ignored' => $request->ignored ?? false,
-                ]);
             }
-        }
 
         return response()->json($task->load('taskUsers'));
     }
@@ -206,5 +209,28 @@ class TaskController extends Controller
         $task->delete();
 
         return response()->json('Zadanie usunięte', 200);
+    }
+
+    public function updateCompletedAndIgnored(Request $request,$taskId)
+    {
+        $task = Task::findOrFail($taskId);
+
+        $request->validate([
+            'completed' => 'required|boolean',
+            'ignored' => 'required|boolean',
+        ]);
+
+        $currentUserId = auth()->id();
+
+        $completed = (bool) $request->completed;
+        $ignored = (bool) $request->ignored;
+
+        $task->taskUsers()->updateExistingPivot($currentUserId, [
+            'completed' => $completed,
+            'ignored' => $ignored,
+        ]);
+
+        return response()->json($task->load('taskUsers'));
+
     }
 }

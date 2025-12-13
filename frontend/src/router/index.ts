@@ -11,7 +11,7 @@ const router = createRouter({
             component: HomeView
         },
         {
-            path: '/login/:token?',
+            path: '/login',
             name: 'Login',
             component: () => import('../views/Login.vue'),
             meta: {requiresGuest: true}

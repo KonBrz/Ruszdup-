@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\TripInvitation;
@@ -202,7 +203,7 @@ class TripController extends Controller
         // Zapis w tabeli trip_invitations
         $trip->invitations()->create(['token' => $token]);
 
-        $link = config('app.frontend_url') . "/trips/$trip->id?invite_token=$token";
+        $link = "$trip->id?invite_token=$token";
 
         return response()->json(['link' => $link]);
     }
@@ -217,5 +218,15 @@ class TripController extends Controller
         $trip->tripUsers()->syncWithoutDetaching(auth()->id());
 
         return response()->json(['success' => true]);
+    }
+
+    public function deleteUser($tripId, $userId)
+    {
+        $trip = Trip::findOrFail($tripId);
+
+        // Usunięcie użytkownika z trip_users
+        $trip->tripUsers()->detach($userId);
+
+        return response()->json(['message' => 'Użytkownik usunięty z wycieczki']);
     }
 }

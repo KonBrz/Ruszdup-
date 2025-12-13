@@ -2,6 +2,8 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "@/api/axios";
+import Granim from 'granim';
+import forestImg from '@/assets/forest2.jpg';
 
 const route = useRoute();
 const router = useRouter();
@@ -54,77 +56,131 @@ const saveTrip = async () => {
   }
 };
 
-onMounted(() => fetchTrip());
+onMounted(async () => {
+  const granimInstance = new Granim({
+    element: '#granim-canvas',
+    name: 'granim',
+    direction: 'top-bottom',
+    isPausedWhenNotInView: false,
+    image: {
+      source: forestImg,
+      blendingMode: 'hard-light', // blendowanie z gradientem
+    },
+    states: {
+      "default-state": {
+        gradients: [
+          ['#1e1b2d', '#3a2c5a'],
+          ['#2c1f3b', '#4b3476'],
+          ['#33264c', '#5a4b8c'],
+          ['#1a1526', '#2e1f4a']
+        ],
+        transitionSpeed: 7000
+      }
+    }
+  });
+  fetchTrip();
+});
 </script>
 
 <template>
-  <div class="container mx-auto p-8">
-    <div v-if="loading" class="text-center">Ładowanie...</div>
-    <div v-if="error" class="text-center text-red-500">{{ error }}</div>
+  <div class="relative min-h-screen">
+    <!-- Tło animowane -->
+    <canvas id="granim-canvas" class="fixed inset-0 w-full h-full z-0"></canvas>
 
-    <div v-if="trip">
-      <h1 class="text-3xl font-bold text-purple-600 mb-6">Edytuj wycieczkę</h1>
+    <!-- Kontener główny -->
+    <div class="relative min-h-screen flex items-start justify-center z-10 pt-24">
+      <div class="w-4/5 max-w-2xl bg-gray-900 text-gray-100 p-8 rounded-xl shadow-lg">
 
-      <form @submit.prevent="saveTrip" class="space-y-4">
-        <div>
-          <label class="block mb-1 font-semibold">Tytuł:</label>
-          <input
-              v-model="form.title"
-              type="text"
-              class="border p-2 rounded w-full"
-          />
+        <!-- Ładowanie / błąd -->
+        <div v-if="loading" class="text-center text-gray-300">Ładowanie...</div>
+        <div v-if="error" class="text-center text-red-500">{{ error }}</div>
+
+        <div v-if="trip">
+
+          <!-- Nagłówek -->
+          <h1 class="text-3xl font-bold text-violet-300 mb-6 text-center">
+            Edytuj wycieczkę
+          </h1>
+
+          <!-- Formularz -->
+          <form @submit.prevent="saveTrip" class="space-y-5">
+
+            <!-- Tytuł -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Tytuł</label>
+              <input
+                  v-model="form.title"
+                  type="text"
+                  class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
+                       focus:outline-none focus:border-violet-600"
+              />
+            </div>
+
+            <!-- Opis -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Opis</label>
+              <textarea
+                  v-model="form.description"
+                  class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
+                       focus:outline-none focus:border-violet-600"
+                  rows="4"
+              ></textarea>
+            </div>
+
+            <!-- Cel podróży -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Cel podróży</label>
+              <input
+                  v-model="form.destination"
+                  type="text"
+                  class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
+                       focus:outline-none focus:border-violet-600"
+              />
+            </div>
+
+            <!-- Data startu -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Data rozpoczęcia</label>
+              <input
+                  v-model="form.start_date"
+                  type="date"
+                  class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
+                       focus:outline-none focus:border-violet-600"
+              />
+            </div>
+
+            <!-- Data końca -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Data zakończenia</label>
+              <input
+                  v-model="form.end_date"
+                  type="date"
+                  class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
+                       focus:outline-none focus:border-violet-600"
+              />
+            </div>
+
+            <!-- Przycisk -->
+            <button
+                type="submit"
+                :disabled="saving"
+                class="w-full bg-violet-800 hover:bg-violet-950 transition text-white py-3
+                     rounded-lg font-medium shadow-md disabled:opacity-50"
+            >
+              {{ saving ? "Zapisywanie..." : "Zapisz zmiany" }}
+            </button>
+          </form>
+
+          <!-- Link powrotny -->
+          <router-link
+              :to="`/trips/${trip.id}`"
+              class="inline-block mt-6 text-violet-300 hover:underline"
+          >
+            ← Powrót do szczegółów wycieczki
+          </router-link>
+
         </div>
-
-        <div>
-          <label class="block mb-1 font-semibold">Opis:</label>
-          <textarea
-              v-model="form.description"
-              class="border p-2 rounded w-full"
-          ></textarea>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-semibold">Cel podróży:</label>
-          <input
-              v-model="form.destination"
-              type="text"
-              class="border p-2 rounded w-full"
-          />
-        </div>
-
-        <div>
-          <label class="block mb-1 font-semibold">Data rozpoczęcia:</label>
-          <input
-              v-model="form.start_date"
-              type="date"
-              class="border p-2 rounded w-full"
-          />
-        </div>
-
-        <div>
-          <label class="block mb-1 font-semibold">Data zakończenia:</label>
-          <input
-              v-model="form.end_date"
-              type="date"
-              class="border p-2 rounded w-full"
-          />
-        </div>
-
-        <button
-            type="submit"
-            :disabled="saving"
-            class="bg-purple-600 text-white px-4 py-2 rounded"
-        >
-          {{ saving ? "Zapisywanie..." : "Zapisz zmiany" }}
-        </button>
-      </form>
-
-      <router-link
-          :to="`/trips/${trip.id}`"
-          class="inline-block mt-4 text-purple-600 hover:underline"
-      >
-        ← Powrót do szczegółów wycieczki
-      </router-link>
+      </div>
     </div>
   </div>
 </template>

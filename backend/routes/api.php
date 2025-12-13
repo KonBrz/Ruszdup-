@@ -14,9 +14,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 // CRUD dla trips
     Route::apiResource('trips', TripController::class);
 
+    Route::delete('trips/{trip}/deleteuser/{user}', [TripController::class, 'deleteUser']);
+
     Route::post('/flagged', [FlaggedController::class, 'store']);
 
     Route::get('/tasks', [TaskController::class, 'allUserTasks']);
+
+    Route::put('/tasks/update/{task}', [TaskController::class, 'updateCompletedAndIgnored'])
+        ->middleware('auth:sanctum');;
 
     Route::post('/tasks', [TaskController::class, 'store']);
 
