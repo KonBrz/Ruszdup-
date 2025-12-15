@@ -22,10 +22,11 @@ const formatDate = (dateString) => {
 const fetchTasks = async () => {
   try {
     const response = await axios.get('/api/tasks');
-    tasks.value = response.data;
+    tasks.value = Array.isArray(response.data) ? response.data : [];
   } catch (e) {
     error.value = 'Nie udało się pobrać listy zadań.';
-    console.error(e);
+    console.error('fetchTasks error:', e);
+    throw e;
   } finally {
     loading.value = false;
   }
