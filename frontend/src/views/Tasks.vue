@@ -8,20 +8,25 @@ const error = ref(null);
 
 const fetchTasks = async () => {
   try {
-    // Zakładając, że API jest dostępne pod /api
-    // i uwierzytelnianie (np. Sanctum) jest już skonfigurowane
     const response = await axios.get('/api/tasks');
-    tasks.value = response.data;
+    tasks.value = Array.isArray(response.data) ? response.data : [];
   } catch (e) {
     error.value = 'Nie udało się pobrać listy zadań.';
-    console.error(e);
+    console.error('fetchTasks error:', e);
+    throw e;
   } finally {
     loading.value = false;
   }
 };
 
-onMounted(() => {
-  fetchTasks();
+onMounted(async () => {
+  try {
+    await fetchTasks();
+  } catch (e) {
+    // Dodatkowe zabezpieczenie — log i ustawienie error jeśli fetchTasks wyrzuci błąd
+    error.value = error.value || 'Wystąpił błąd podczas inicjalizacji komponentu.';
+    console.error('onMounted fetchTasks failed:', e);
+  }
 });
 </script>
 

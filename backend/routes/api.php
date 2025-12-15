@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TripController;
 use App\Http\Controllers\Api\FlaggedController;
+use App\Http\Controllers\Api\AiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,4 +29,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // Nested tasks (np. GET /trips/1/tasks)
     Route::apiResource('trips.tasks', TaskController::class)->shallow();
+
+// rout dla ai advice
+    Route::post('/ai/advice', [\App\Http\Controllers\Api\AiAdviceController::class, 'getAdvice']);
+
+    // Chat z AI
+    Route::post('/ai-chat', [AiController::class, 'chat']);
 });
