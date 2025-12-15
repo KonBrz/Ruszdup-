@@ -59,8 +59,8 @@ services:
       - "5173:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
-    command: bash -c "npm run dev -- --host"  # Przed produkcją zmienić na npm run build!
+      - ./frontend/node_modules:/app/node_modules
+    command: bash -c "cd /app && if [ ! -d node_modules ] || [ -z \"$(ls -A node_modules)\" ]; then npm ci --no-audit --no-fund --silent; fi && npm run dev -- --host"  # Przed produkcją zmienić na npm run build!
     depends_on:
       - backend
 
