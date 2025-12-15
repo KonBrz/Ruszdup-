@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from '@/api/axios';
 import { useAuthStore } from '@/stores/auth';
+import Granim from 'granim';
+import forestImg from '@/assets/forest2.jpg';
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -58,83 +60,135 @@ const saveTask = async () => {
   }
 };
 
-onMounted(() => fetchTask());
+onMounted(async () => {
+  const granimInstance = new Granim({
+    element: '#granim-canvas',
+    name: 'granim',
+    direction: 'top-bottom',
+    isPausedWhenNotInView: false,
+    image: {
+      source: forestImg,
+      blendingMode: 'hard-light', // blendowanie z gradientem
+    },
+    states: {
+      "default-state": {
+        gradients: [
+          ['#1e1b2d', '#3a2c5a'],
+          ['#2c1f3b', '#4b3476'],
+          ['#33264c', '#5a4b8c'],
+          ['#1a1526', '#2e1f4a']
+        ],
+        transitionSpeed: 7000
+      }
+    }
+  });
+  fetchTask();
+});
 </script>
 
 <template>
-  <div class="container p-8 mx-auto">
-    <div v-if="loading" class="text-center">Ładowanie...</div>
-    <div v-if="error" class="text-center text-red-500">{{ error }}</div>
+  <div class="relative min-h-screen">
+    <!-- Tło animowane -->
+    <canvas id="granim-canvas" class="fixed inset-0 w-full h-full z-0"></canvas>
 
-    <div v-if="task">
-      <h1 class="text-3xl font-bold text-purple-600 mb-4">Edytuj zadanie</h1>
+    <!-- Kontener główny -->
+    <div class="relative min-h-screen flex items-start justify-center z-10 pt-24">
+      <div class="w-4/5 max-w-2xl bg-gray-900 text-gray-100 p-8 rounded-xl shadow-lg">
 
-      <form @submit.prevent="saveTask" class="space-y-4">
-        <div>
-          <label class="block mb-1 font-semibold">Zadanie:</label>
-          <input v-model="form.title" type="text" class="border p-2 w-full rounded" />
-        </div>
+        <!-- Ładowanie / błąd -->
+        <div v-if="loading" class="text-center text-gray-300">Ładowanie...</div>
+        <div v-if="error" class="text-center text-red-500">{{ error }}</div>
 
-        <div>
-          <label class="block mb-1 font-semibold">Priorytet:</label>
-          <select v-model="form.priority" class="border p-2 w-full rounded">
-            <option :value="null">Nie ma priorytetu</option>
-            <option value="niski">Niski</option>
-            <option value="średni">Średni</option>
-            <option value="wysoki">Wysoki</option>
-          </select>
-        </div>
+        <div v-if="task">
 
-        <div>
-          <label class="block mb-1 font-semibold">Deadline:</label>
-          <input v-model="form.deadline" type="date" class="border p-2 w-full rounded" />
-        </div>
+          <!-- Nagłówek -->
+          <h1 class="text-3xl font-bold text-violet-300 mb-6 text-center">
+            Edytuj zadanie
+          </h1>
 
-        <div>
-          <label class="inline-flex items-center">
-            <input v-model="form.completed" type="checkbox" class="mr-2" />
-            Ukończone
-          </label>
-        </div>
+          <!-- Formularz -->
+          <form @submit.prevent="saveTask" class="space-y-5">
 
-        <div>
-          <label class="inline-flex items-center">
-            <input v-model="form.ignored" type="checkbox" class="mr-2" />
-            Zignoruj
-          </label>
-        </div>
+            <!-- Tytuł -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Zadanie</label>
+              <input
+                  v-model="form.title"
+                  type="text"
+                  class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
+              />
+            </div>
 
-        <div>
-          <button type="submit" :disabled="saving" class="bg-purple-600 text-white px-4 py-2 rounded">
-            {{ saving ? 'Zapisywanie...' : 'Zapisz zmiany' }}
-          </button>
-        </div>
-      </form>
+            <!-- Priorytet -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Priorytet</label>
+              <select
+                  v-model="form.priority"
+                  class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
+              >
+                <option :value="null">Brak priorytetu</option>
+                <option value="niski">Niski</option>
+                <option value="średni">Średni</option>
+                <option value="wysoki">Wysoki</option>
+              </select>
+            </div>
 
-      <h2 class="mt-6 text-xl font-semibold text-purple-600">Przydzieleni użytkownicy</h2>
-      <ul class="list-disc list-inside">
-        <li v-for="user in task.task_users" :key="user.id">
-          {{ user.name }}
-        </li>
-      </ul>
+            <!-- Deadline -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Deadline</label>
+              <input
+                  v-model="form.deadline"
+                  type="date"
+                  class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
+              />
+            </div>
 
-      <div v-for="user in task.trip.trip_users" :key="user.id">
-        <label>
-          <input
-              type="checkbox"
-              :value="user.id"
-              v-model="form.user_ids"
+            <!-- Użytkownicy -->
+            <div>
+              <label class="block mb-1 text-gray-300 font-medium">Przydziel użytkowników</label>
+
+              <div class="space-y-2 bg-gray-800 p-3 rounded-lg border border-gray-700">
+                <div
+                    v-for="user in task.trip.trip_users"
+                    :key="user.id"
+                    class="flex items-center gap-2"
+                >
+                  <input
+                      type="checkbox"
+                      :value="user.id"
+                      v-model="form.user_ids"
+                      class="peer w-5 h-5 rounded-md border border-violet-700 bg-gray-900 appearance-none transition-all duration-200 checked:bg-violet-600 checked:border-violet-800"/>
+                  <svg
+                      class="absolute pointer-events-none w-5 h-5 text-white scale-0 transition-transform duration-200 peer-checked:scale-100"
+                      fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"
+                  >
+                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{{ user.name }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Przycisk -->
+            <button
+                type="submit"
+                :disabled="saving"
+                class="w-full bg-violet-800 hover:bg-violet-950 transition text-white py-3 rounded-lg font-medium shadow-md disabled:opacity-50"
+            >
+              {{ saving ? 'Zapisywanie...' : 'Zapisz zmiany' }}
+            </button>
+          </form>
+
+          <!-- Link powrotny -->
+          <router-link
+              :to="`/trips/${task.trip_id}`"
+              class="inline-block mt-6 text-violet-300 hover:underline"
           >
-          {{ user.name }}
-        </label>
-      </div>
+            ← Powrót do szczegółów wycieczki
+          </router-link>
 
-      <router-link
-          :to="`/trips/${task.trip_id}`"
-          class="inline-block mt-4 text-purple-600 hover:underline"
-      >
-        ← Powrót do szczegółów wycieczki
-      </router-link>
+        </div>
+      </div>
     </div>
   </div>
 </template>

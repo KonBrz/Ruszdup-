@@ -70,8 +70,10 @@ class DatabaseSeeder extends Seeder
             'end_date' => now()->addDays(5)->toDateString(),
         ]);
 
+        $trip->tripUsers()->attach(11);
+
         $trip->tripUsers()->attach(
-            User::inRandomOrder()->take(3)->pluck('id')->toArray()
+            User::inRandomOrder()->where('id', '!=', 11)->take(3)->pluck('id')->toArray()
         );
 // Stwórz 5 tasków w tym tripie
         $tasks = Task::factory(5)->create([

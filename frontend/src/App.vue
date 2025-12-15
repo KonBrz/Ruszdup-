@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav class="p-4 text-white bg-gray-800">
+    <nav class="fixed top-0 left-0 w-full p-4 text-white bg-gray-900 z-50">
       <div class="container flex justify-between mx-auto">
         <router-link to="/" class="font-bold">RuszDupe logo</router-link>
         <div class="flex items-center space-x-4">

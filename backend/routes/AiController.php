@@ -13,16 +13,39 @@ class AiController extends Controller
             'prompt' => 'required|string',
         ]);
 
-        // Tutaj w przyszłości dodasz integrację z OpenAI (np. ChatGPT)
-        // Na razie zwracamy symulowaną odpowiedź, aby przetestować frontend
-        
         $userMessage = $validated['prompt'];
-        
-        // Symulacja odpowiedzi AI
-        $aiResponse = "To jest przykładowa odpowiedź z serwera na Twoje pytanie: \"{$userMessage}\". Tutaj wkrótce pojawi się prawdziwa AI.";
+        $apiKey = env('GEMINI_API_KEY');
+
+        if (!$apiKey) {
+            return response()->json([
+                'response' => 'Brak klucza API. Skonfiguruj GEMINI_API_KEY w pliku .env.'
+            ], 500);
+        }
+
+        // Wywołanie Google Gemini API (przykładowa integracja)
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json'
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
+                'contents' => [
+                    ['parts' => [['text' => "Jesteś ekspertem od planowania podróży. Doradź użytkownikowi: " . $userMessage]]]
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'response' => 'Błąd podczas łączenia z API zewnętrznym: ' . $e->getMessage()
+            ], 502);
+        }
+
+        if ($response->successful()) {
+            $data = $response->json();
+            $aiResponse = $data['candidates'][0]['content']['parts'][0]['text'] ?? 'AI nie zwróciło odpowiedzi.';
+        } else {
+            $aiResponse = 'Wystąpił błąd połączenia z AI (' . $response->status() . ').';
+        }
 
         return response()->json([
-            'response' => $aiResponse
+            'response' => $aiResponse,
         ]);
     }
 }
