@@ -67,4 +67,51 @@ class AiController extends Controller
             // Usunięto zwracanie treści błędu do klienta ze względów bezpieczeństwa
         ], 500);
     }
+
+    public function ask(Request $request)
+    {
+        if (!auth('sanctum')->user()) {
+            return response()->json([
+                'response' => 'Zaloguj się aby skorzystać z pomocy AI.'
+            ], 401);
+        }
+
+        $validated = $request->validate([
+            'destination' => 'required|string',
+        ]);
+
+        $destination = $validated['destination'];
+        $apiKey = config('services.gemini.key');
+
+        if (!$apiKey) {
+            return response()->json([
+                'response' => 'Brak klucza API. Skonfiguruj GEMINI_API_KEY w pliku .env.'
+            ], 500);
+        }
+
+        $model = 'gemini-1.5-pro-latest';
+        $promptText = "Jesteś ekspertem od planowania podróży. Podaj 5 propozycji zadań do wykonania przed wyjazdem do miasta {$destination}. Odpowiedź w formie listy, krótko i zwięźle.";
+
+        $response = Http::post("https://generativelanguage.googleapis.com/v1/models/{$model}:generateContent?key={$apiKey}", [
+            'contents' => [
+                ['parts' => [['text' => $promptText]]]
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            $aiResponse = data_get($data, 'candidates.0.content.parts.0.text', 'AI nie zwróciło odpowiedzi lub odpowiedź została zablokowana.');
+
+            return response()->json([
+                'suggestions' => $aiResponse
+            ]);
+        }
+
+        Log::warning('AI API error', ['status' => $response->status(), 'body' => $response->body()]);
+
+        return response()->json([
+            'response' => 'Wystąpił błąd połączenia z AI (' . $response->status() . ').',
+            'ai_error_status' => $response->status(),
+        ], 500);
+    }
 }

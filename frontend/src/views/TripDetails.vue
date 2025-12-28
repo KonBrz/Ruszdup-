@@ -28,6 +28,8 @@ const inviteLink = ref('');
 const generating = ref(false);
 const inviteError = ref('');
 const token = new URLSearchParams(window.location.search).get('invite_token');
+const aiResponse = ref('');
+const askingAi = ref(false);
 
 const fetchTrips = async () => {
   try {
@@ -176,6 +178,40 @@ const generateInvite = async () => {
   }
 };
 
+const askAI = async () => {
+  if (!trips.value) return;
+
+  askingAi.value = true;
+  try {
+    const existingTasks = trips.value.tasks.map(t => t.title).join(', ');
+    const response = await axios.post('/api/ai-chat', {
+      prompt: `Zaproponuj jedno konkretne zadanie przygotowawcze do wycieczki do: ${trips.value.destination || 'nieznane miejsce'}.
+      ${existingTasks ? `Unikaj duplikatów z tej listy zadań: ${existingTasks}.` : ''}
+      Odpowiedz samym tytułem zadania, bez zbędnych opisów.`,
+    });
+    const suggestion = response.data.response || response.data.reply;
+    const cleanSuggestion = suggestion ? suggestion.replace(/^["']|["']$/g, '').trim() : '';
+    const exists = trips.value.tasks.some(t => t.title.toLowerCase() === cleanSuggestion.toLowerCase());
+
+    if (exists) {
+      alert(`AI zasugerowało "${cleanSuggestion}", ale to zadanie już istnieje.`);
+    } else if (cleanSuggestion && confirm(`AI sugeruje zadanie: "${cleanSuggestion}".\nCzy chcesz je utworzyć?`)) {
+      await axios.post('/api/tasks', {
+        trip_id: trips.value.id,
+        title: cleanSuggestion,
+        priority: 'średni'
+      });
+      await fetchTrips();
+      alert('Zadanie zostało utworzone.');
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Nie udało się uzyskać pomocy od AI.');
+  } finally {
+    askingAi.value = false;
+  }
+};
+
 const closeAllMenus = (e) => {
   if (!e.target.closest(".trip-menu-container")) {
     showTripMenu.value = false;
@@ -271,13 +307,13 @@ onBeforeUnmount(() => {
   <div class="relative min-h-screen">
     <canvas id="granim-canvas" class="fixed inset-0 w-full h-full z-0"></canvas>
 
-    <div class="relative min-h-screen flex items-start justify-center z-10 pt-16">
+    <div class="relative min-h-screen flex items-start justify-center z-10 pt-4">
       <div v-if="trips && (trips.trip_users ?? []).some(u => u.id === currentUser.id)"
-           class="w-4/5 min-h-screen bg-gray-900 text-gray-100 p-6 rounded-xl shadow-lg">
+           class="w-full p-2 md:w-11/12 md:p-6 min-h-screen bg-gray-900 text-gray-100 rounded-xl shadow-lg">
 
         <!-- Nagłówek wycieczki -->
         <div class="relative bg-gradient-to-r from-violet-950 via-violet-900 to-gray-900 p-6 rounded-xl shadow-lg mb-6">
-          <h1 class="text-4xl font-bold">{{ trips.title }}</h1>
+          <h1 class="text-3xl md:text-4xl font-bold">{{ trips.title }}</h1>
           <p class="text-gray-300 mt-1"><strong>{{ trips.start_date }}</strong> – <strong>{{ trips.end_date }}</strong>
           </p>
           <div class="mt-4">
@@ -314,17 +350,21 @@ onBeforeUnmount(() => {
                       class="block px-4 py-2 hover:bg-gray-700 w-full text-left">Zgłoś
               </button>
               <button @click="generateInvite" :disabled="generating"
-                      class="block px-4 py-2 hover:bg-gray-700 w-full text-left">
-                {{ generating ? 'Generowanie...' : 'Wygeneruj token i zaproś znajomych' }}
+                      class="flex items-center justify-center px-4 py-2 hover:bg-gray-700 w-full text-left">
+                <svg v-if="generating" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ generating ? 'Generowanie...' : 'Zaproś znajomych' }}
               </button>
             </div>
           </div>
         </div>
         <!-- Layout: Użytkownicy / Zadania -->
-        <div class="flex gap-6 mt-6">
+        <div class="flex flex-col md:flex-row gap-6 mt-6">
 
           <!-- Użytkownicy -->
-          <div class="w-1/3 bg-gray-800 p-4 rounded-xl shadow-md space-y-3">
+          <div class="w-full md:w-1/3 bg-gray-800 p-4 rounded-xl shadow-md space-y-3">
             <h2 class="text-lg font-sans font-medium italic text-violet-200 mb-2">Użytkownicy</h2>
             <ul class="space-y-2">
               <li v-for="user in trips.trip_users" :key="user.id"
@@ -348,13 +388,23 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Zadania -->
-          <div class="w-2/3 bg-gray-800 p-4 rounded-xl shadow-md space-y-4">
+          <div class="w-full md:w-2/3 bg-gray-800 p-4 rounded-xl shadow-md space-y-4">
             <div class="flex justify-between items-center mb-2">
               <h2 class="text-lg font-sans font-medium italic text-violet-200">Zadania</h2>
-              <router-link :to="{ name: 'CreateTask', params: { id: trips.id } }"
-                           class="bg-violet-800 text-white px-3 py-1 rounded hover:bg-violet-950 transition text-sm">
-                Dodaj zadanie
-              </router-link>
+              <div class="flex gap-2 flex-wrap">
+                <router-link :to="{ name: 'CreateTask', params: { id: trips.id } }"
+                             class="bg-violet-800 text-white px-3 py-1 rounded hover:bg-violet-950 transition text-sm">
+                  Dodaj zadanie
+                </router-link>
+                <button @click="askAI" :disabled="askingAi"
+                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                  <svg v-if="askingAi" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ askingAi ? 'AI myśli...' : 'Zapytaj AI o pomoc' }}
+                </button>
+              </div>
             </div>
 
             <div v-for="task in trips.tasks" :key="task.id"
@@ -449,4 +499,3 @@ onBeforeUnmount(() => {
     </div>
   </div>
 </template>
-

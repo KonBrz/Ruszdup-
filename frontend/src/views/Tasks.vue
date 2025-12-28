@@ -33,6 +33,27 @@ const fetchTasks = async () => {
 };
 
 onMounted(async () => {
+  const granimInstance = new Granim({
+    element: '#granim-canvas',
+    name: 'granim',
+    direction: 'top-bottom',
+    isPausedWhenNotInView: false,
+    image : {
+      source: forestImg,
+      blendingMode: 'hard-light', // blendowanie z gradientem
+    },
+    states : {
+      "default-state": {
+        gradients: [
+          ['#1e1b2d', '#3a2c5a'],
+          ['#2c1f3b', '#4b3476'],
+          ['#33264c', '#5a4b8c'],
+          ['#1a1526', '#2e1f4a']
+        ],
+        transitionSpeed: 7000
+      }
+    }
+  });
   try {
     await fetchTasks();
   } catch (e) {

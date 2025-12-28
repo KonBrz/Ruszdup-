@@ -37,6 +37,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // rout dla ai advice
     Route::post('/ai/advice', [\App\Http\Controllers\Api\AiAdviceController::class, 'getAdvice']);
+
+    Route::post('/ai/ask', [AiController::class, 'ask']);
 });
 
 // Endpoint chat AI (bez middleware auth:sanctum, sprawdzanie w kontrolerze dla lepszego komunikatu)
