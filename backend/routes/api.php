@@ -12,7 +12,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-// CRUD dla trips
+    // CRUD dla trips
     Route::apiResource('trips', TripController::class);
 
     Route::delete('trips/{trip}/deleteuser/{user}', [TripController::class, 'deleteUser']);
@@ -22,7 +22,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/tasks', [TaskController::class, 'allUserTasks']);
 
     Route::put('/tasks/update/{task}', [TaskController::class, 'updateCompletedAndIgnored'])
-        ->middleware('auth:sanctum');;
+        ->middleware('auth:sanctum');
 
     Route::post('/tasks', [TaskController::class, 'store']);
 
@@ -32,12 +32,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/trip-invite/accept', [TripController::class, 'acceptInvitation'])
         ->middleware('auth:sanctum');
 
-// Nested tasks (np. GET /trips/1/tasks)
+    // Nested tasks (np. GET /trips/1/tasks)
     Route::apiResource('trips.tasks', TaskController::class)->shallow();
 
-// rout dla ai advice
+    // rout dla ai advice
     Route::post('/ai/advice', [\App\Http\Controllers\Api\AiAdviceController::class, 'getAdvice']);
-
-    // Chat z AI
-    Route::post('/ai-chat', [AiController::class, 'chat']);
 });
+
+// Endpoint chat AI (bez middleware auth:sanctum, sprawdzanie w kontrolerze dla lepszego komunikatu)
+Route::post('/ai-chat', [AiController::class, 'chat'])
+    ->middleware('throttle:ai');

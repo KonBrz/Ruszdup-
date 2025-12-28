@@ -37,7 +37,9 @@ const sendMessage = async () => {
     messages.value.push({ role: 'assistant', content: reply });
   } catch (e) {
     console.error(e);
-    messages.value.push({ role: 'assistant', content: 'Przepraszam, nie udało się połączyć z serwerem.' });
+    // Pobierz komunikat z backendu (pole 'response' z kontrolera lub 'message' z Laravela)
+    const errorMsg = e.response?.data?.response || e.response?.data?.message || 'Przepraszam, nie udało się połączyć z serwerem.';
+    messages.value.push({ role: 'assistant', content: errorMsg });
   } finally {
     loading.value = false;
     await scrollToBottom();

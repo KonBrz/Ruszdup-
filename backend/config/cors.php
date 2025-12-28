@@ -15,13 +15,23 @@ return [
     |
     */
 
-    'paths' => ['*'],
+    // Obsłuż preflight dla API i Sanctum (CSRF cookie)
+    'paths' => ['api/*', 'sanctum/csrf-cookie', '*'],
 
     'allowed_methods' => ['*'],
     
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:5173')],
+    // Dopuszczalne pochodzenia frontendu (dodajemy 127.0.0.1 i porty)
+    'allowed_origins' => [
+        env('FRONTEND_URL', 'http://localhost:5173'),
+        'http://127.0.0.1:5173',
+        'http://localhost:3000',
+    ],
 
-    'allowed_origins_patterns' => [],
+    // Pozwalamy też na wzorzec localhost z dowolnym portem
+    'allowed_origins_patterns' => [
+        '/^https?:\/\/localhost(:[0-9]+)?$/',
+        '/^https?:\/\/127\.0\.0\.1(:[0-9]+)?$/'
+    ],
 
     'allowed_headers' => ['*'],
 
