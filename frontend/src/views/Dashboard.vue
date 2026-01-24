@@ -40,14 +40,16 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth';
-import {onMounted} from "vue";
+import {onBeforeUnmount, onMounted} from "vue";
 import Granim from 'granim';
 import forestImg from '@/assets/forest2.jpg';
 
 const authStore = useAuthStore();
 
+let granimInstance: { destroy?: () => void; pause?: () => void } | null = null;
+
 onMounted(async () => {
-  new Granim({
+  granimInstance = new Granim({
     element: '#granim-canvas',
     name: 'granim',
     direction: 'top-bottom',
@@ -68,6 +70,12 @@ onMounted(async () => {
       }
     }
   });
+});
+
+onBeforeUnmount(() => {
+  granimInstance?.destroy?.();
+  granimInstance?.pause?.();
+  granimInstance = null;
 });
 
 </script>

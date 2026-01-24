@@ -62,7 +62,7 @@
 
 
 <script setup lang="ts">
-import {reactive, ref, onMounted} from 'vue';
+import {reactive, ref, onBeforeUnmount, onMounted} from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import Granim from 'granim';
@@ -87,6 +87,8 @@ const errors = reactive<Errors>({
   general: ''
 });
 
+let granimInstance: { destroy?: () => void; pause?: () => void } | null = null;
+
 async function handleLogin() {
   errors.email = [];
   errors.password = [];
@@ -110,7 +112,7 @@ async function handleLogin() {
 }
 
 onMounted(async () => {
-  new Granim({
+  granimInstance = new Granim({
     element: '#granim-canvas',
     name: 'granim',
     direction: 'top-bottom',
@@ -131,5 +133,11 @@ onMounted(async () => {
       }
     }
   });
+});
+
+onBeforeUnmount(() => {
+  granimInstance?.destroy?.();
+  granimInstance?.pause?.();
+  granimInstance = null;
 });
 </script>
