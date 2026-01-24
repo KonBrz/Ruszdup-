@@ -1,6 +1,9 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = "Stop"
 
+$startTime = Get-Date
+$startTimeIso = $startTime.ToUniversalTime().ToString("o")
+
 function Get-ComposeCommand {
     if (Get-Command docker-compose -ErrorAction SilentlyContinue) {
         return @("docker-compose")
@@ -20,6 +23,15 @@ function Invoke-Compose([string[]]$composeArgs) {
     }
     & $compose @composeArgs
     return $LASTEXITCODE
+}
+
+function Get-ComposeLogs([string[]]$composeArgs) {
+    $compose = Get-ComposeCommand
+    if ($null -eq $compose) {
+        return ""
+    }
+    $output = & $compose @composeArgs 2>&1
+    return ($output | Out-String)
 }
 
 function Wait-Port([string]$targetHost, [int]$port, [int]$timeoutSec = 120) {
@@ -63,7 +75,7 @@ Run-Step "Backend: php artisan test" {
     finally { Pop-Location }
 }
 
-Run-Step "Frontend: unit tests (vitest)" {
+Run-Step "Frontend: unit tests (vitest, 8 tests)" {
     Push-Location (Join-Path $root "frontend")
     try { npm run test:unit }
     finally { Pop-Location }
@@ -85,10 +97,49 @@ if (-not (Wait-Port -targetHost "localhost" -port 5173 -timeoutSec 120)) {
     exit 1
 }
 
-Run-Step "Frontend: e2e (playwright)" {
-    Push-Location (Join-Path $root "frontend")
-    try { npm run test:e2e }
-    finally { Pop-Location }
+$frontendLogs = Get-ComposeLogs @("logs", "--tail", "200", "frontend")
+$frontendLogs = Get-ComposeLogs @("logs", "--since", $startTimeIso, "frontend")
+$frontendConnRefusedCount = ([regex]::Matches($frontendLogs, "ECONNREFUSED 127\.0\.0\.1:8000")).Count
+
+Write-Host ""
+Write-Host "==> Frontend: e2e (playwright, 5 tests)"
+Push-Location (Join-Path $root "frontend")
+try { npm run test:e2e }
+finally { Pop-Location }
+
+$code = $LASTEXITCODE
+if ($code -ne 0) {
+    $resultsPath = Join-Path $root "frontend\test-results"
+    if (Test-Path $resultsPath) {
+        Get-ChildItem -Path $resultsPath -Recurse -Filter "error-context.md" | ForEach-Object {
+            Write-Host ("E2E error context: " + $_.FullName) -ForegroundColor Yellow
+        }
+    }
+    Write-Host "FAIL: Frontend: e2e (playwright, 5 tests) (exit code: $code)" -ForegroundColor Red
+    exit $code
+}
+Write-Host "OK: Frontend: e2e (playwright, 5 tests)" -ForegroundColor Green
+
+Write-Host ""
+Write-Host "==> Log sanity check (since final-check start)"
+
+$backendLogs = Get-ComposeLogs @("logs", "--since", $startTimeIso, "backend")
+$backendErrorPattern = "(?i)Exception|ERROR|CRITICAL|Stack trace|SQLSTATE|Symfony\\\\Component\\\\ErrorHandler|Unhandled"
+$backendMatches = [regex]::Matches($backendLogs, $backendErrorPattern)
+
+if ($backendMatches.Count -gt 0) {
+    Write-Host ("WARN: backend logs contain {0} error-like lines since start." -f $backendMatches.Count) -ForegroundColor Yellow
+    $backendLines = $backendLogs -split "`r?`n"
+    $matchedLines = $backendLines | Where-Object { $_ -match $backendErrorPattern }
+    $matchedLines | Select-Object -First 30 | ForEach-Object { Write-Host $_ -ForegroundColor Yellow }
+} else {
+    Write-Host "OK: no backend log errors since start." -ForegroundColor Green
+}
+
+if ($frontendConnRefusedCount -gt 0) {
+    Write-Host ("WARN: frontend logs show ECONNREFUSED 127.0.0.1:8000 {0} time(s) since start." -f $frontendConnRefusedCount) -ForegroundColor Yellow
+} else {
+    Write-Host "OK: no frontend proxy ECONNREFUSED since start." -ForegroundColor Green
 }
 
 Write-Host ""

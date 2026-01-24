@@ -10,7 +10,7 @@
         <div class="bg-gradient-to-r from-violet-950 via-violet-900 to-gray-900 p-8 rounded-xl shadow-lg">
 
           <h1 class="text-4xl font-bold text-violet-200 text-center" data-testid="dashboard-loaded">
-            Witaj, {{ authStore.user.name }}!
+            Witaj, {{ authStore.user?.name ?? '' }}!
           </h1>
 
           <p class="mt-4 text-lg text-center text-gray-300">
@@ -19,7 +19,7 @@
 
           <div class="mt-6 bg-gray-800 p-6 rounded-xl shadow-md space-y-2">
             <p class="text-gray-200">
-              <strong>Email:</strong> {{ authStore.user.email }}
+              <strong>Email:</strong> {{ authStore.user?.email ?? '' }}
             </p>
           </div>
 
@@ -41,14 +41,13 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth';
 import {onMounted} from "vue";
-import router from "../router";
 import Granim from 'granim';
 import forestImg from '@/assets/forest2.jpg';
 
 const authStore = useAuthStore();
 
 onMounted(async () => {
-  const granimInstance = new Granim({
+  new Granim({
     element: '#granim-canvas',
     name: 'granim',
     direction: 'top-bottom',

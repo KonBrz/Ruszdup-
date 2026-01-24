@@ -2,14 +2,21 @@ import { defineStore } from 'pinia';
 import apiClient from '@/api/axios'; 
 import { ref, computed } from 'vue';
 
-type ApiUser = {
+type User = {
     id: number;
     email: string;
     name?: string;
     is_admin?: boolean;
 };
 
-function isApiUser(data: unknown): data is ApiUser {
+type LoginCredentials = {
+    email: string;
+    password: string;
+};
+
+type RegisterPayload = Record<string, string>;
+
+function isApiUser(data: unknown): data is User {
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
         return false;
     }
@@ -22,7 +29,7 @@ function isApiUser(data: unknown): data is ApiUser {
     );
 }
 export const useAuthStore = defineStore('auth', () => {
-    const user = ref<object | null>(null);
+    const user = ref<User | null>(null);
     const isAuthenticated = computed(() => !!user.value);
     const inviteToken = ref<string | null>(null);
 
@@ -60,7 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
             }
         }
     }
-    async function login(credentials: Record<string, string>) {
+    async function login(credentials: LoginCredentials) {
         await apiClient.get('/sanctum/csrf-cookie');
         const params = new URLSearchParams();
         params.append('email', credentials.email);
@@ -69,7 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
         await fetchUser();
     }
 
-    async function register(details: Record<string, string>) {
+    async function register(details: RegisterPayload) {
         await apiClient.get('/sanctum/csrf-cookie');
         const params = new URLSearchParams(details);
         await apiClient.post('/register', params);

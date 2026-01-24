@@ -63,27 +63,34 @@
 
 <script setup lang="ts">
 import {reactive, ref, onMounted} from 'vue';
-import { useRouter, useRoute} from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import Granim from 'granim';
 import forestImg from '@/assets/forest2.jpg';
 
 const authStore = useAuthStore();
 const router = useRouter();
-const route = useRoute();
 
 const form = ref({
   email: '',
   password: '',
 });
-const errors = reactive({
+type Errors = {
+  email: string[];
+  password: string[];
+  general: string;
+};
+
+const errors = reactive<Errors>({
   email: [],
   password: [],
   general: ''
 });
 
 async function handleLogin() {
-  Object.keys(errors).forEach(key => errors[key] = Array.isArray(errors[key]) ? [] : '');
+  errors.email = [];
+  errors.password = [];
+  errors.general = '';
   try {
     await authStore.login(form.value);
     if (authStore.user?.is_admin) {
@@ -103,7 +110,7 @@ async function handleLogin() {
 }
 
 onMounted(async () => {
-  const granimInstance = new Granim({
+  new Granim({
     element: '#granim-canvas',
     name: 'granim',
     direction: 'top-bottom',

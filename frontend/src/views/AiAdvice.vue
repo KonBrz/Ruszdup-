@@ -89,17 +89,17 @@ onMounted(() => {
 
         <h1 class="text-3xl font-bold text-violet-300 mb-6 text-center">Porady od AI</h1>
 
-        <div ref="messagesContainer" class="space-y-2 bg-gray-800 p-4 rounded-lg border border-gray-700 h-64 overflow-auto mb-4">
+        <div ref="messagesContainer" data-testid="ai-messages" class="space-y-2 bg-gray-800 p-4 rounded-lg border border-gray-700 h-64 overflow-auto mb-4">
           <div v-for="(m, idx) in messages" :key="idx" class="mb-2">
-            <div v-if="m.role === 'assistant'" class="text-left text-gray-200">{{ m.content }}</div>
-            <div v-else class="text-right text-violet-300">{{ m.content }}</div>
+            <div v-if="m.role === 'assistant'" data-testid="ai-message-assistant" class="text-left text-gray-200">{{ m.content }}</div>
+            <div v-else data-testid="ai-message-user" class="text-right text-violet-300">{{ m.content }}</div>
           </div>
-          <div v-if="loading" class="text-gray-400 italic">AI pisze...</div>
+          <div v-if="loading" data-testid="ai-loading" class="text-gray-400 italic">AI pisze...</div>
         </div>
 
         <form @submit.prevent="sendMessage" class="flex gap-3">
-          <input v-model="userInput" @keyup.enter="sendMessage" class="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600" placeholder="Napisz wiadomość..." />
-          <button type="submit" :disabled="loading" class="px-4 py-3 bg-violet-800 hover:bg-violet-950 transition text-white rounded-lg">
+          <input v-model="userInput" data-testid="ai-input" @keyup.enter="sendMessage" class="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600" placeholder="Napisz wiadomość..." />
+          <button type="submit" data-testid="ai-submit" :disabled="loading" class="px-4 py-3 bg-violet-800 hover:bg-violet-950 transition text-white rounded-lg">
             {{ loading ? 'Wysyłanie...' : 'Wyślij' }}
           </button>
         </form>

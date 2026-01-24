@@ -87,17 +87,18 @@ onMounted(async () => {
         </div>
 
         <!-- LISTA ZADAŃ -->
-        <ul v-if="!loading && tasks.length > 0" class="space-y-4 mt-6">
+        <ul v-if="!loading && tasks.length > 0" class="space-y-4 mt-6" data-testid="tasks-list">
           <li
               v-for="task in tasks"
               :key="task.id"
+              :data-testid="`task-item-${task.id}`"
               class="p-5 bg-gray-800 border border-gray-700 rounded-xl shadow-md hover:bg-gray-700 transition cursor-pointer"
           >
             <router-link :to="{ name: 'TripDetails', params: { id: task.trip_id } }" class="block">
 
               <div class="flex justify-between items-start">
                 <!-- Tytuł -->
-                <h2 class="text-xl font-semibold text-violet-200">{{ task.title }}</h2>
+                <h2 class="text-xl font-semibold text-violet-200" data-testid="task-item-title">{{ task.title }}</h2>
 
                 <!-- Meta -->
                 <div class="text-right text-sm text-gray-400">

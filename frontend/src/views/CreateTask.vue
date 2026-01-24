@@ -99,7 +99,7 @@ onMounted(async () => {
           </h1>
 
           <!-- Formularz -->
-          <form @submit.prevent="createTask" class="space-y-5">
+          <form @submit.prevent="createTask" class="space-y-5" data-testid="task-create-form">
 
             <!-- Tytuł -->
             <div>
@@ -107,6 +107,7 @@ onMounted(async () => {
               <input
                   type="text"
                   v-model="form.title"
+                  data-testid="task-title"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
                        focus:outline-none focus:border-violet-600"
               />
@@ -117,6 +118,7 @@ onMounted(async () => {
               <label class="block mb-1 text-gray-300 font-medium">Priorytet</label>
               <select
                   v-model="form.priority"
+                  data-testid="task-priority"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
                        focus:outline-none focus:border-violet-600"
               >
@@ -133,6 +135,7 @@ onMounted(async () => {
               <input
                   type="date"
                   v-model="form.deadline"
+                  data-testid="task-deadline"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
                        focus:outline-none focus:border-violet-600"
               />
@@ -152,6 +155,7 @@ onMounted(async () => {
                       type="checkbox"
                       :value="user.id"
                       v-model="form.user_ids"
+                      :data-testid="`task-user-${user.id}`"
                       class="peer w-5 h-5 rounded-md border border-violet-700 bg-gray-900 appearance-none
                            transition-all duration-200 checked:bg-violet-600 checked:border-violet-800"
                   />
@@ -174,6 +178,7 @@ onMounted(async () => {
                 class="w-full bg-violet-800 hover:bg-violet-950 transition text-white py-3
                      rounded-lg font-medium shadow-md disabled:opacity-50"
                 :disabled="saving"
+                data-testid="task-submit"
             >
               {{ saving ? "Tworzenie..." : "Utwórz zadanie" }}
             </button>

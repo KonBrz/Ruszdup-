@@ -37,6 +37,7 @@ return [
 
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
+        'fake' => env('GEMINI_FAKE', false),
     ],
 
 ];

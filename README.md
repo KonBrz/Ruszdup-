@@ -98,6 +98,21 @@ Testy E2E w frontendzie:
 npm run test:e2e
 ```
 
+## Final check (przed oddaniem)
+
+Jedna komenda:
+```
+.\final-check.ps1
+```
+
+Sukces oznacza: `ALL TESTS PASSED`.
+
+Logi i artefakty:
+- `docker compose logs backend`
+- `docker compose logs frontend`
+- `backend/storage/logs/laravel.log`
+- `frontend/test-results/**/error-context.md`
+
 ## 🧩 Dodatkowe informacje
 
 - Projekt korzysta z **Vue 3 `<script setup>`** – dokumentacja:  

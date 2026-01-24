@@ -304,7 +304,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="relative min-h-screen">
+  <div class="relative min-h-screen" data-testid="trip-details">
     <canvas id="granim-canvas" class="fixed inset-0 w-full h-full z-0"></canvas>
 
     <div class="relative min-h-screen flex items-start justify-center z-10 pt-4">
@@ -313,7 +313,7 @@ onBeforeUnmount(() => {
 
         <!-- Nagłówek wycieczki -->
         <div class="relative bg-gradient-to-r from-violet-950 via-violet-900 to-gray-900 p-6 rounded-xl shadow-lg mb-6">
-          <h1 class="text-3xl md:text-4xl font-bold">{{ trips.title }}</h1>
+          <h1 class="text-3xl md:text-4xl font-bold" data-testid="trip-details-title">{{ trips.title }}</h1>
           <p class="text-gray-300 mt-1"><strong>{{ trips.start_date }}</strong> – <strong>{{ trips.end_date }}</strong>
           </p>
           <div class="mt-4">
@@ -388,11 +388,12 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Zadania -->
-          <div class="w-full md:w-2/3 bg-gray-800 p-4 rounded-xl shadow-md space-y-4">
+          <div class="w-full md:w-2/3 bg-gray-800 p-4 rounded-xl shadow-md space-y-4" data-testid="trip-tasks-list">
             <div class="flex justify-between items-center mb-2">
               <h2 class="text-lg font-sans font-medium italic text-violet-200">Zadania</h2>
               <div class="flex gap-2 flex-wrap">
                 <router-link :to="{ name: 'CreateTask', params: { id: trips.id } }"
+                             data-testid="trip-add-task"
                              class="bg-violet-800 text-white px-3 py-1 rounded hover:bg-violet-950 transition text-sm">
                   Dodaj zadanie
                 </router-link>
@@ -409,6 +410,7 @@ onBeforeUnmount(() => {
 
             <div v-for="task in trips.tasks" :key="task.id"
                  class="p-4 rounded-lg bg-gray-700 hover:bg-gray-600 transition relative" :id="'task-menu-' + task.id"
+                 :data-testid="`trip-task-item-${task.id}`"
                  data-anchor="task-123">
               <div class="flex justify-between items-start">
                 <div>
@@ -421,7 +423,7 @@ onBeforeUnmount(() => {
                   <p class="text-xs text-gray-400 mt-1">
                     {{ getTaskProgress(task) }}%
                   </p>
-                  <p class="font-semibold text-white text-lg mb-1">Zadanie: {{ task.title }}</p>
+                  <p class="font-semibold text-white text-lg mb-1" data-testid="trip-task-title">Zadanie: {{ task.title }}</p>
                   <div class="flex flex-wrap gap-1 mb-1">
                 <span v-for="user in task.task_users" :key="user.id"
                       class="bg-gray-600 px-2 py-1 rounded text-sm">{{ user.name }}</span>

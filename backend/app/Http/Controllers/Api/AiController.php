@@ -26,6 +26,12 @@ class AiController extends Controller
         ]);
 
         $userMessage = $validated['prompt'];
+        if (config('services.gemini.fake') || (app()->environment('local') && !config('services.gemini.key'))) {
+            return response()->json([
+                'response' => 'Oto porada: zaplanuj krótki spacer po centrum i sprawdź lokalną pogodę.',
+            ]);
+        }
+
         $apiKey = config('services.gemini.key'); // Zmieniono env() na config() dla stabilności cache
 
         if (!$apiKey) {
@@ -81,6 +87,12 @@ class AiController extends Controller
         ]);
 
         $destination = $validated['destination'];
+        if (config('services.gemini.fake') || (app()->environment('local') && !config('services.gemini.key'))) {
+            return response()->json([
+                'suggestions' => 'Oto porada: sprawdź prognozę i przygotuj listę rzeczy do spakowania.',
+            ]);
+        }
+
         $apiKey = config('services.gemini.key');
 
         if (!$apiKey) {
