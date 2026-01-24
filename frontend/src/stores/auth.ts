@@ -1,6 +1,26 @@
 import { defineStore } from 'pinia';
 import apiClient from '@/api/axios'; 
 import { ref, computed } from 'vue';
+
+type ApiUser = {
+    id: number;
+    email: string;
+    name?: string;
+    is_admin?: boolean;
+};
+
+function isApiUser(data: unknown): data is ApiUser {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        return false;
+    }
+
+    const candidate = data as Record<string, unknown>;
+    return (
+        typeof candidate.id === 'number' &&
+        typeof candidate.email === 'string' &&
+        (candidate.name === undefined || typeof candidate.name === 'string')
+    );
+}
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<object | null>(null);
     const isAuthenticated = computed(() => !!user.value);
@@ -9,14 +29,29 @@ export const useAuthStore = defineStore('auth', () => {
     async function fetchUser() {
         try {
             const { data } = await apiClient.get('/api/user');
-            user.value = data;
+            let parsedData: unknown = data;
+
+            if (typeof parsedData === 'string') {
+                try {
+                    parsedData = JSON.parse(parsedData);
+                } catch {
+                    // Keep original string if parsing fails.
+                }
+            }
+
+            if (!isApiUser(parsedData)) {
+                user.value = null;
+                return null;
+            }
+
+            user.value = parsedData;
             // jeśli admin - backend panel
-            if (data.is_admin) {
+            if (parsedData.is_admin) {
                 window.location.href = 'http://localhost:8000/admin'
                 return
             }
             // jeśli zwykły user - dashboard frontendowy
-            return data
+            return parsedData
         } catch (error: any) {
             user.value = null;
             // Jeśli błąd to 401/419 (brak autoryzacji), nie ma potrzeby go logować jako błąd aplikacji

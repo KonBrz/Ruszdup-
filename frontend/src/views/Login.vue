@@ -18,6 +18,7 @@
               type="email"
               v-model="form.email"
               id="email"
+              data-testid="login-email"
               required
               class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
           >
@@ -33,6 +34,7 @@
               type="password"
               v-model="form.password"
               id="password"
+              data-testid="login-password"
               required
               class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
           >
@@ -44,6 +46,7 @@
         <!-- Submit -->
         <button
             type="submit"
+            data-testid="login-submit"
             class="w-full bg-violet-800 hover:bg-violet-950 transition text-white py-2 rounded-lg font-medium shadow-md"
         >
           Zaloguj

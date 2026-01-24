@@ -79,6 +79,25 @@ Frontend dostępny pod:
 http://localhost:5173
 ```
 
+## E2E / Playwright (Docker)
+
+Po zmianach w konfiguracji backendu:
+```
+docker-compose exec backend php artisan optimize:clear
+docker-compose restart backend
+```
+
+Opcjonalnie sprawdź cookies:
+```
+curl.exe -i http://localhost:8000/sanctum/csrf-cookie
+curl.exe -i -X POST http://localhost:8000/login -d "email=YOUR_EMAIL&password=YOUR_PASS"
+```
+
+Testy E2E w frontendzie:
+```
+npm run test:e2e
+```
+
 ## 🧩 Dodatkowe informacje
 
 - Projekt korzysta z **Vue 3 `<script setup>`** – dokumentacja:  

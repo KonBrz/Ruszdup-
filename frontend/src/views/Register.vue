@@ -18,6 +18,7 @@
               type="text"
               v-model="form.name"
               id="name"
+              data-testid="username"
               required
               class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
           >
@@ -31,6 +32,7 @@
               type="email"
               v-model="form.email"
               id="email"
+              data-testid="email"
               required
               class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
           >
@@ -44,6 +46,7 @@
               type="password"
               v-model="form.password"
               id="password"
+              data-testid="password"
               required
               class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
           >
@@ -57,6 +60,7 @@
               type="password"
               v-model="form.password_confirmation"
               id="password_confirmation"
+              data-testid="password_confirmation"
               required
               class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
           >
@@ -65,6 +69,7 @@
         <!-- Submit -->
         <button
             type="submit"
+            data-testid="register-submit"
             class="w-full bg-violet-800 hover:bg-violet-950 transition text-white py-2 rounded-lg font-medium shadow-md"
         >
           Zarejestruj

@@ -10,7 +10,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/var/www
-      - /var/www/vendor
+      - vendor:/var/www/vendor
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -47,7 +47,6 @@ services:
     ports:
       - "3306:3306"
 
-
   # --- Frontend (Vue + Vite) ---
   frontend:
     build:
@@ -57,12 +56,26 @@ services:
     restart: unless-stopped
     ports:
       - "5173:5173"
+    environment:
+      - VITE_BACKEND_URL=http://backend:8000
     volumes:
       - ./frontend:/app
-      - ./frontend/node_modules:/app/node_modules
-    command: bash -c "cd /app && if [ ! -d node_modules ] || [ -z \"$(ls -A node_modules)\" ]; then npm ci --no-audit --no-fund --silent; fi && npm run dev -- --host"  # Przed produkcją zmienić na npm run build!
+      - frontend_node_modules:/app/node_modules
+    command: bash -c "cd /app && npm ci --no-audit --no-fund && npm run dev -- --host 0.0.0.0 --port 5173"
     depends_on:
       - backend
 
+  composer:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - vendor:/var/www/vendor
+    command: composer install --no-interaction --prefer-dist
+
 volumes:
   db_data:
+  vendor:
+  frontend_node_modules:

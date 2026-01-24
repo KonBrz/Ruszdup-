@@ -10,11 +10,11 @@
 
           <template v-if="authStore.user">
             <router-link to="/dashboard" class="hover:text-gray-300">Panel</router-link>
-            <button @click="handleLogout" class="hover:text-gray-300">Wyloguj</button>
+            <button @click="handleLogout" data-testid="nav-logout" class="hover:text-gray-300">Wyloguj</button>
           </template>
           <template v-else>
             <router-link to="/login" class="hover:text-gray-300">Login</router-link>
-            <router-link to="/register" class="hover:text-gray-300">Rejestracja</router-link>
+            <router-link to="/register" data-testid="nav-register" class="hover:text-gray-300">Rejestracja</router-link>
           </template>
         </div>
       </div>

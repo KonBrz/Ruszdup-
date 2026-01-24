@@ -53,6 +53,12 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "test:ci": [
+            "@php -r \"file_exists('.env.testing') || copy('.env.example', '.env.testing');\"",
+            "@php artisan optimize:clear --env=testing",
+            "@php artisan migrate:fresh --env=testing",
+            "@php artisan test --env=testing"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",
