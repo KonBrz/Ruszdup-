@@ -94,13 +94,20 @@ import forestImg from '@/assets/forest2.jpg';
 const authStore = useAuthStore();
 const router = useRouter();
 
+type Errors = {
+  name: string[];
+  email: string[];
+  password: string[];
+  general: string;
+};
+
 const form = ref({
   name: '',
   email: '',
   password: '',
   password_confirmation: '',
 });
-const errors = reactive({
+const errors = reactive<Errors>({
   name: [],
   email: [],
   password: [],
@@ -108,7 +115,10 @@ const errors = reactive({
 });
 
 async function handleRegister() {
-  Object.keys(errors).forEach(key => errors[key] = Array.isArray(errors[key]) ? [] : '');
+  errors.name = [];
+  errors.email = [];
+  errors.password = [];
+  errors.general = '';
 
   if (form.value.password !== form.value.password_confirmation) {
     errors.password = ['Hasła nie są identyczne.'];
@@ -129,7 +139,7 @@ async function handleRegister() {
   }
 }
 onMounted(async () => {
-  const granimInstance = new Granim({
+  new Granim({
     element: '#granim-canvas',
     name: 'granim',
     direction: 'top-bottom',
