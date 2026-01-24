@@ -115,6 +115,7 @@ onMounted(() => {
             <!-- Utwórz wycieczkę -->
             <router-link
                 to="/trips/createtrip"
+                data-testid="trips-create-link"
                 class="bg-violet-800 hover:bg-violet-950 text-white px-4 py-2 rounded-lg shadow-md transition flex items-center"
             >
               Utwórz Wycieczkę
@@ -129,16 +130,17 @@ onMounted(() => {
           Brak wycieczek do wyświetlenia.
         </div>
 
-        <ul v-if="!loading && trips.length > 0" class="space-y-4 mt-6">
+        <ul v-if="!loading && trips.length > 0" class="space-y-4 mt-6" data-testid="trips-list">
           <li
               v-for="trip in trips"
               :key="trip.id"
+              :data-testid="`trip-item-${trip.id}`"
               class="p-5 bg-gray-800 border border-gray-700 rounded-xl shadow-md hover:bg-gray-700 transition cursor-pointer"
           >
             <router-link :to="{ name: 'TripDetails', params: { id: trip.id } }" class="block">
               <div class="flex justify-between items-start">
                 <div>
-                  <h2 class="text-xl font-semibold text-violet-200">{{ trip.title }}</h2>
+                  <h2 class="text-xl font-semibold text-violet-200" data-testid="trip-item-title">{{ trip.title }}</h2>
                   <p class="text-gray-300 mt-1">{{ trip.description }}</p>
                 </div>
                 <div class="text-right space-y-1 text-sm text-gray-400">

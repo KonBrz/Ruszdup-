@@ -9,7 +9,7 @@
         <!-- Jeśli zalogowany -->
         <div class="bg-gradient-to-r from-violet-950 via-violet-900 to-gray-900 p-8 rounded-xl shadow-lg">
 
-          <h1 class="text-4xl font-bold text-violet-200 text-center">
+          <h1 class="text-4xl font-bold text-violet-200 text-center" data-testid="dashboard-loaded">
             Witaj, {{ authStore.user.name }}!
           </h1>
 
@@ -25,6 +25,7 @@
 
           <router-link
               to="/trips"
+              data-testid="dashboard-trips-link"
               class="inline-block mt-6 px-4 py-2 bg-violet-800 hover:bg-violet-950 text-white rounded-lg shadow transition"
           >
             Przejdź do wycieczek →
