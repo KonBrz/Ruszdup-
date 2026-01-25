@@ -4,11 +4,6 @@ declare module '*.vue' {
     export default component
 }
 
-declare module '*.svg' {
-    const src: string
-    export default src
-}
-
 declare module 'granim'
 
 declare module '@/api/axios' {

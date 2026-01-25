@@ -2,9 +2,7 @@
   <div>
     <nav class="fixed top-0 left-0 w-full p-4 text-white bg-gray-900 z-50">
       <div class="container flex justify-between mx-auto">
-        <router-link to="/" class="flex items-center gap-2 font-bold">
-          <img src="/logo.svg" alt="RuszDupe" class="h-8 w-auto object-contain" />
-        </router-link>
+        <router-link to="/" class="font-bold">RuszDupe logo</router-link>
         <div class="flex items-center space-x-4">
           <router-link to="/trips" class="hover:text-gray-300">Wycieczki</router-link>
           <router-link to="/tasks" class="hover:text-gray-300">Zadania</router-link>
