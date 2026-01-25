@@ -1,0 +1,42 @@
+# Test-only Docker Compose - SQLite in-memory, no external dependencies
+# Usage:
+#   docker compose -f docker-compose.test.yml run --rm backend-test
+#   docker compose -f docker-compose.test.yml down -v
+
+services:
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - test_vendor:/var/www/vendor
+    environment:
+      APP_ENV: testing
+      APP_DEBUG: "true"
+      APP_KEY: base64:YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE=
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ":memory:"
+      GEMINI_FAKE: "true"
+      CACHE_DRIVER: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+    command: >
+      bash -c "
+        composer install --no-interaction --prefer-dist --quiet &&
+        php artisan test
+      "
+
+  composer:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - test_vendor:/var/www/vendor
+    command: composer install --no-interaction --prefer-dist
+
+volumes:
+  test_vendor:
