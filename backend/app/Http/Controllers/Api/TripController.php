@@ -107,6 +107,8 @@ class TripController extends Controller
     {
         $trip = Trip::with('user:id,name', 'tripUsers', 'tasks', 'tasks.taskUsers:id,name')->findOrFail($id);
 
+        $this->authorize('view', $trip);
+
         $userId = auth()->id();
 
         $trip->can_edit_trip = (
@@ -153,6 +155,8 @@ class TripController extends Controller
     {
         $trip = Trip::findOrFail($id);
 
+        $this->authorize('update', $trip);
+
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'destination' => 'sometimes|required|string|max:255',
@@ -189,6 +193,8 @@ class TripController extends Controller
     {
         $trip = Trip::findOrFail($id);
 
+        $this->authorize('delete', $trip);
+
         $trip->delete();
 
         return response()->json("Wycieczka usunięta", 200);
@@ -197,6 +203,8 @@ class TripController extends Controller
     public function generateInviteLink($tripId)
     {
         $trip = Trip::findOrFail($tripId);
+
+        $this->authorize('invite', $trip);
 
         $token = Str::uuid();
 
@@ -223,6 +231,8 @@ class TripController extends Controller
     public function deleteUser($tripId, $userId)
     {
         $trip = Trip::findOrFail($tripId);
+
+        $this->authorize('removeUser', $trip);
 
         // Usunięcie użytkownika z trip_users
         $trip->tripUsers()->detach($userId);

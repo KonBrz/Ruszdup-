@@ -80,6 +80,13 @@ class TaskController extends Controller
             'user_ids.*' => 'exists:users,id',
         ]);
 
+        // Check if user is member of the trip
+        $trip = Trip::findOrFail($validated['trip_id']);
+        $userId = auth()->id();
+        if (!$trip->tripUsers()->whereKey($userId)->exists()) {
+            abort(403);
+        }
+
         // Tworzymy task
         $task = $request->user()->tasks()->create($validated);
 
@@ -112,8 +119,9 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-
         $task = Task::with('trip.tripUsers:id,name', 'taskUsers:id,name')->findOrFail($id);
+
+        $this->authorize('view', $task);
 
         $userId = auth()->id();
 
@@ -155,6 +163,8 @@ class TaskController extends Controller
     public function update(Request $request, $id)
     {
         $task = Task::findOrFail($id);
+
+        $this->authorize('update', $task);
 
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
@@ -211,12 +221,14 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
 
+        $this->authorize('delete', $task);
+
         $task->delete();
 
         return response()->json('Zadanie usunięte', 200);
     }
 
-    public function updateCompletedAndIgnored(Request $request,$taskId)
+    public function updateCompletedAndIgnored(Request $request, $taskId)
     {
         $task = Task::findOrFail($taskId);
 
@@ -227,6 +239,12 @@ class TaskController extends Controller
 
         $currentUserId = auth()->id();
 
+        // Check if user is assigned to the task
+        $isAssigned = $task->taskUsers()->whereKey($currentUserId)->exists();
+        if (!$isAssigned) {
+            abort(403);
+        }
+
         $completed = (bool) $request->completed;
         $ignored = (bool) $request->ignored;
 
@@ -236,6 +254,5 @@ class TaskController extends Controller
         ]);
 
         return response()->json($task->load('taskUsers'));
-
     }
 }

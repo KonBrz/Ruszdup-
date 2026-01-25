@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Flagged;
+use App\Models\Trip;
+use App\Models\Task;
 
 class FlaggedController extends Controller
 {
@@ -22,11 +24,30 @@ class FlaggedController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id'  => 'sometimes|nullable|exists:users,id',
-            'trip_id'  => 'sometimes|nullable|exists:trips,id',
-            'task_id'  => 'sometimes|nullable|exists:tasks,id',
-            'reason'   => 'required|string|max:255',
+            'reason' => 'required|string|max:255',
+            'user_id' => 'nullable|integer|exists:users,id|required_without_all:trip_id,task_id',
+            'trip_id' => 'nullable|integer|exists:trips,id|required_without_all:user_id,task_id',
+            'task_id' => 'nullable|integer|exists:tasks,id|required_without_all:user_id,trip_id',
         ]);
+
+        $userId = auth()->id();
+
+        // Authorization: if flagging a trip, user must be a member
+        if (!empty($validated['trip_id'])) {
+            $trip = Trip::findOrFail($validated['trip_id']);
+            if (!$trip->tripUsers()->whereKey($userId)->exists()) {
+                abort(403);
+            }
+        }
+
+        // Authorization: if flagging a task, user must be a member of its trip
+        if (!empty($validated['task_id'])) {
+            $task = Task::with('trip.tripUsers')->findOrFail($validated['task_id']);
+            $trip = $task->trip;
+            if (!$trip || !$trip->tripUsers()->whereKey($userId)->exists()) {
+                abort(403);
+            }
+        }
 
         $flag = Flagged::create($validated);
 
