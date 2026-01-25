@@ -333,23 +333,43 @@ onBeforeUnmount(() => {
             <p class="text-gray-100 mb-1"><strong>Utworzył:</strong> {{ trips.user?.name }}</p>
             <p class="text-gray-100 mb-1"><strong>Opis:</strong> {{ trips.description }}</p>
             <p class="text-gray-100 mb-1"><strong>Cel podróży:</strong> {{ trips.destination }}</p>
-            <div v-if="inviteLink"><p>Token zaproszenia: {{ inviteLink }}</p></div>
+            <div v-if="inviteLink"><p>Token zaproszenia: <span data-testid="trip-invite-token">{{ inviteLink }}</span></p></div>
             <div v-if="inviteError" class="text-red-500"> {{ inviteError }}</div>
           </div> <!-- Menu 3-kropki dla wycieczki -->
           <div class="trip-menu-container absolute top-6 right-6">
-            <button @click="showTripMenu = !showTripMenu" class="px-2 py-1 text-gray-300 hover:text-white">⋮</button>
+            <button
+                @click="showTripMenu = !showTripMenu"
+                data-testid="trip-menu-button"
+                class="px-2 py-1 text-gray-300 hover:text-white"
+            >⋮</button>
             <div v-if="showTripMenu"
+                 data-testid="trip-menu-dropdown"
                  class="absolute right-0 mt-1 bg-gray-900 border border-gray-700 rounded shadow-md text-sm z-10">
-              <router-link v-if="trips.can_edit_trip" :to="{ name: 'EditTrip', params: { id: trips.id } }"
-                           class="block px-4 py-2 hover:bg-gray-700 w-full text-left">Edytuj
+              <router-link
+                  v-if="trips.can_edit_trip"
+                  :to="{ name: 'EditTrip', params: { id: trips.id } }"
+                  data-testid="trip-edit-link"
+                  class="block px-4 py-2 hover:bg-gray-700 w-full text-left"
+              >Edytuj
               </router-link>
-              <button v-if="trips.can_edit_trip" @click="deleteTrip(trips.id)"
-                      class="block px-4 py-2 hover:bg-gray-700 w-full text-left">Usuń
+              <button
+                  v-if="trips.can_edit_trip"
+                  @click="deleteTrip(trips.id)"
+                  data-testid="trip-delete-button"
+                  class="block px-4 py-2 hover:bg-gray-700 w-full text-left"
+              >Usuń
               </button>
-              <button v-if="!trips.can_edit_trip" @click="flagTrip"
-                      class="block px-4 py-2 hover:bg-gray-700 w-full text-left">Zgłoś
+              <button
+                  v-if="!trips.can_edit_trip"
+                  @click="flagTrip"
+                  data-testid="trip-flag"
+                  class="block px-4 py-2 hover:bg-gray-700 w-full text-left"
+              >Zgłoś
               </button>
-              <button @click="generateInvite" :disabled="generating"
+              <button
+                      @click="generateInvite"
+                      :disabled="generating"
+                      data-testid="trip-invite"
                       class="flex items-center justify-center px-4 py-2 hover:bg-gray-700 w-full text-left">
                 <svg v-if="generating" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -371,15 +391,26 @@ onBeforeUnmount(() => {
                   class="flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-600 transition">
                 <span>{{ user.name }}</span>
                 <div class="relative">
-                  <button @click="user.showMenu = !user.showMenu" class="px-2 py-1 text-gray-300 hover:text-white"
+                  <button
+                          @click="user.showMenu = !user.showMenu"
+                          :data-testid="`user-menu-${user.id}`"
+                          class="px-2 py-1 text-gray-300 hover:text-white"
                           :id="'user-menu-' + user.id">⋮
                   </button>
                   <div v-if="user.showMenu"
                        class="absolute right-0 mt-1 bg-gray-900 border border-gray-700 rounded shadow-md text-sm z-10">
-                    <button @click="flagUser(user.id)" class="block px-4 py-2 hover:bg-gray-700 w-full text-left">Zgłoś
+                    <button
+                        @click="flagUser(user.id)"
+                        :data-testid="`user-flag-${user.id}`"
+                        class="block px-4 py-2 hover:bg-gray-700 w-full text-left"
+                    >Zgłoś
                     </button>
-                    <button v-if="trips.can_edit_trip && user.id !== currentUser.id" @click="deleteUser(user.id)"
-                            class="block px-4 py-2 hover:bg-gray-700 w-full text-left">Usuń
+                    <button
+                            v-if="trips.can_edit_trip && user.id !== currentUser.id"
+                            @click="deleteUser(user.id)"
+                            :data-testid="`user-remove-${user.id}`"
+                            class="block px-4 py-2 hover:bg-gray-700 w-full text-left"
+                    >Usuń
                     </button>
                   </div>
                 </div>
@@ -438,7 +469,11 @@ onBeforeUnmount(() => {
 
                 <!-- Menu 3-kropki dla zadania -->
                 <div class="relative">
-                  <button @click="task.showMenu = !task.showMenu" class="px-2 py-1 text-gray-300 hover:text-white">⋮
+                  <button
+                      @click="task.showMenu = !task.showMenu"
+                      :data-testid="`task-menu-${task.id}`"
+                      class="px-2 py-1 text-gray-300 hover:text-white"
+                  >⋮
                   </button>
                   <div v-if="task.showMenu"
                        class="absolute right-0 mt-1 bg-gray-900 border border-gray-700 rounded shadow-md text-sm z-10">
@@ -447,7 +482,11 @@ onBeforeUnmount(() => {
                     </router-link>
                     <button @click="deleteTask(task.id)" class="block px-4 py-2 hover:bg-gray-700 w-full text-left">Usuń
                     </button>
-                    <button @click="flagTask(task.id)" class="block px-4 py-2 hover:bg-gray-700 w-full text-left">Zgłoś
+                    <button
+                        @click="flagTask(task.id)"
+                        :data-testid="`task-flag-${task.id}`"
+                        class="block px-4 py-2 hover:bg-gray-700 w-full text-left"
+                    >Zgłoś
                     </button>
                   </div>
                 </div>
@@ -461,6 +500,7 @@ onBeforeUnmount(() => {
                       type="checkbox"
                       v-model="task.currentUser.completed"
                       @change="() => { if (task.currentUser.completed) task.currentUser.ignored = false; }"
+                      :data-testid="`task-completed-${task.id}`"
                       class="peer w-5 h-5 rounded-md border border-violet-700 bg-gray-900 appearance-none transition-all duration-200 checked:bg-violet-600 checked:border-violet-800"/>
                   <svg
                       class="absolute pointer-events-none w-5 h-5 text-white scale-0 transition-transform duration-200 peer-checked:scale-100"
@@ -475,6 +515,7 @@ onBeforeUnmount(() => {
                       type="checkbox"
                       v-model="task.currentUser.ignored"
                       @change="() => { if (task.currentUser.ignored) task.currentUser.completed = false; }"
+                      :data-testid="`task-ignored-${task.id}`"
                       class="peer w-5 h-5 rounded-md border border-violet-700 bg-gray-900 appearance-none transition-all duration-200 checked:bg-violet-600 checked:border-violet-800"/>
                   <svg
                       class="absolute pointer-events-none w-5 h-5 text-white scale-0 transition-transform duration-200 peer-checked:scale-100"
@@ -484,7 +525,10 @@ onBeforeUnmount(() => {
                   </svg>
                   Zignoruj
                 </label>
-                <button type="submit" :disabled="saving"
+                <button
+                    type="submit"
+                    :disabled="saving"
+                    :data-testid="`task-save-${task.id}`"
                         class="bg-violet-800 hover:bg-violet-950 text-white px-3 py-1 transition rounded text-sm w-max mt-1">Zapisz
                   zmiany
                 </button>

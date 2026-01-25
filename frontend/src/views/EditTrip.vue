@@ -103,13 +103,14 @@ onMounted(async () => {
           </h1>
 
           <!-- Formularz -->
-          <form @submit.prevent="saveTrip" class="space-y-5">
+          <form @submit.prevent="saveTrip" class="space-y-5" data-testid="trip-edit-form">
 
             <!-- Tytuł -->
             <div>
               <label class="block mb-1 text-gray-300 font-medium">Tytuł</label>
               <input
                   v-model="form.title"
+                  data-testid="trip-edit-title"
                   type="text"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
                        focus:outline-none focus:border-violet-600"
@@ -121,6 +122,7 @@ onMounted(async () => {
               <label class="block mb-1 text-gray-300 font-medium">Opis</label>
               <textarea
                   v-model="form.description"
+                  data-testid="trip-edit-description"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
                        focus:outline-none focus:border-violet-600"
                   rows="4"
@@ -132,6 +134,7 @@ onMounted(async () => {
               <label class="block mb-1 text-gray-300 font-medium">Cel podróży</label>
               <input
                   v-model="form.destination"
+                  data-testid="trip-edit-destination"
                   type="text"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
                        focus:outline-none focus:border-violet-600"
@@ -143,6 +146,7 @@ onMounted(async () => {
               <label class="block mb-1 text-gray-300 font-medium">Data rozpoczęcia</label>
               <input
                   v-model="form.start_date"
+                  data-testid="trip-edit-start-date"
                   type="date"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
                        focus:outline-none focus:border-violet-600"
@@ -154,6 +158,7 @@ onMounted(async () => {
               <label class="block mb-1 text-gray-300 font-medium">Data zakończenia</label>
               <input
                   v-model="form.end_date"
+                  data-testid="trip-edit-end-date"
                   type="date"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg
                        focus:outline-none focus:border-violet-600"
@@ -164,6 +169,7 @@ onMounted(async () => {
             <button
                 type="submit"
                 :disabled="saving"
+                data-testid="trip-edit-submit"
                 class="w-full bg-violet-800 hover:bg-violet-950 transition text-white py-3
                      rounded-lg font-medium shadow-md disabled:opacity-50"
             >

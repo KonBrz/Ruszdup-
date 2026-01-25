@@ -18,6 +18,7 @@ class EmailVerificationTest extends TestCase
         $user = User::factory()->unverified()->create();
 
         Event::fake();
+        config(['app.frontend_url' => 'http://localhost:5173']);
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
@@ -35,6 +36,7 @@ class EmailVerificationTest extends TestCase
     public function test_email_is_not_verified_with_invalid_hash(): void
     {
         $user = User::factory()->unverified()->create();
+        config(['app.frontend_url' => 'http://localhost:5173']);
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
@@ -42,8 +44,9 @@ class EmailVerificationTest extends TestCase
             ['id' => $user->id, 'hash' => sha1('wrong-email')]
         );
 
-        $this->actingAs($user)->get($verificationUrl);
+        $response = $this->actingAs($user)->get($verificationUrl);
 
         $this->assertFalse($user->fresh()->hasVerifiedEmail());
+        $response->assertStatus(403);
     }
 }

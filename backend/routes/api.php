@@ -25,6 +25,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('auth:sanctum');
 
     Route::post('/tasks', [TaskController::class, 'store']);
+    Route::get('/tasks/{task}', [TaskController::class, 'show']);
+    Route::put('/tasks/{task}', [TaskController::class, 'update']);
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
 
     Route::post('/trips/{trip}/invite', [TripController::class, 'generateInviteLink'])
         ->middleware('auth');
@@ -33,7 +36,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('auth:sanctum');
 
     // Nested tasks (np. GET /trips/1/tasks)
-    Route::apiResource('trips.tasks', TaskController::class)->shallow();
+    Route::apiResource('trips.tasks', TaskController::class)->only(['index']);
 
     // rout dla ai advice
     Route::post('/ai/advice', [\App\Http\Controllers\Api\AiAdviceController::class, 'getAdvice']);

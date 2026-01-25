@@ -5,7 +5,9 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
@@ -14,17 +16,28 @@ class PasswordResetTest extends TestCase
 
     public function test_reset_password_link_can_be_requested(): void
     {
+        Mail::fake();
         Notification::fake();
 
         $user = User::factory()->create();
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $response = $this->post('/forgot-password', ['email' => $user->email]);
 
+        $response->assertStatus(200);
         Notification::assertSentTo($user, ResetPassword::class);
+    }
+
+    public function test_reset_password_link_requires_email(): void
+    {
+        $response = $this->postJson('/forgot-password', []);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
     }
 
     public function test_password_can_be_reset_with_valid_token(): void
     {
+        Mail::fake();
         Notification::fake();
 
         $user = User::factory()->create();
@@ -42,6 +55,8 @@ class PasswordResetTest extends TestCase
             $response
                 ->assertSessionHasNoErrors()
                 ->assertStatus(200);
+
+            $this->assertTrue(Hash::check('password', $user->fresh()->password));
 
             return true;
         });

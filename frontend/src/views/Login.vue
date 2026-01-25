@@ -52,9 +52,10 @@
           Zaloguj
         </button>
 
-        <p v-if="errors.general" class="mt-4 text-center text-red-500">
-          {{ errors.general }}
-        </p>
+        <div v-if="errorMsg" data-testid="login-error" role="alert" class="mt-4 text-center text-red-500">
+          {{ errorMsg }}
+        </div>
+
       </form>
     </div>
   </div>
@@ -86,6 +87,7 @@ const errors = reactive<Errors>({
   password: [],
   general: ''
 });
+const errorMsg = ref('');
 
 let granimInstance: { destroy?: () => void; pause?: () => void } | null = null;
 
@@ -93,6 +95,7 @@ async function handleLogin() {
   errors.email = [];
   errors.password = [];
   errors.general = '';
+  errorMsg.value = '';
   try {
     await authStore.login(form.value);
     if (authStore.user?.is_admin) {
@@ -102,10 +105,17 @@ async function handleLogin() {
     }
 
   } catch (e: any) {
-    if (e.response && e.response.status === 422) {
-      Object.assign(errors, e.response.data.errors);
+    const status = e?.response?.status;
+    if (status === 422) {
+      errors.email = e.response?.data?.errors?.email ?? [];
+      errors.password = e.response?.data?.errors?.password ?? [];
+      const apiMessage = e.response?.data?.message;
+      const errorValues = e.response?.data?.errors ? Object.values(e.response.data.errors).flat() : [];
+      errorMsg.value = apiMessage || errorValues[0] || 'Błąd logowania';
+    } else if (status === 401) {
+      errorMsg.value = 'Nieprawidłowe dane logowania';
     } else {
-      errors.general = 'Nieprawidłowe dane logowania lub błąd serwera.';
+      errorMsg.value = 'Błąd logowania';
     }
     console.error(e);
   }

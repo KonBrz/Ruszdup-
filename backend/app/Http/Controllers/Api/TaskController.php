@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Task;
+use App\Models\Trip;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -27,12 +28,16 @@ class TaskController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Trip $trip)
     {
         $user = auth()->user();
+        $isMember = $trip->tripUsers()->where('user_id', $user->id)->exists();
+        if (!$isMember) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
         return response()->json(
-            $user->tasks()->with('trip', 'taskUsers')->get());
+            $trip->tasks()->with('trip', 'taskUsers')->get());
     }
 
     public function allUserTasks()

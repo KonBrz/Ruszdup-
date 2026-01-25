@@ -98,11 +98,13 @@ onMounted(() => {
                     v-model="tokenInput"
                     type="text"
                     placeholder="Wpisz token zaproszenia"
+                    data-testid="invite-token-input"
                     class="w-full px-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-600 mb-3"
                 />
                 <button
                     @click="inviteUser(tokenInput)"
                     :disabled="loading"
+                    data-testid="invite-token-submit"
                     class="w-full bg-violet-800 hover:bg-violet-950 text-white px-4 py-2 rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {{ loading ? 'Dołączanie...' : 'Potwierdź' }}
@@ -126,7 +128,7 @@ onMounted(() => {
         <!-- Status ładowania / lista wycieczek -->
         <div v-if="loading" class="text-center text-gray-400 mt-4">Ładowanie...</div>
         <div v-if="error" class="text-center text-red-500 mt-4">{{ error }}</div>
-        <div v-if="!loading && trips.length === 0" class="text-center text-gray-500 mt-6">
+        <div v-if="!loading && trips.length === 0" data-testid="trips-empty" class="text-center text-gray-500 mt-6">
           Brak wycieczek do wyświetlenia.
         </div>
 

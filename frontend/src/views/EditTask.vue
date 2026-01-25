@@ -107,13 +107,14 @@ onMounted(async () => {
           </h1>
 
           <!-- Formularz -->
-          <form @submit.prevent="saveTask" class="space-y-5">
+          <form @submit.prevent="saveTask" class="space-y-5" data-testid="task-edit-form">
 
             <!-- Tytuł -->
             <div>
               <label class="block mb-1 text-gray-300 font-medium">Zadanie</label>
               <input
                   v-model="form.title"
+                  data-testid="task-edit-title"
                   type="text"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
               />
@@ -124,6 +125,7 @@ onMounted(async () => {
               <label class="block mb-1 text-gray-300 font-medium">Priorytet</label>
               <select
                   v-model="form.priority"
+                  data-testid="task-edit-priority"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
               >
                 <option :value="null">Brak priorytetu</option>
@@ -138,6 +140,7 @@ onMounted(async () => {
               <label class="block mb-1 text-gray-300 font-medium">Deadline</label>
               <input
                   v-model="form.deadline"
+                  data-testid="task-edit-deadline"
                   type="date"
                   class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-violet-600"
               />
@@ -173,6 +176,7 @@ onMounted(async () => {
             <button
                 type="submit"
                 :disabled="saving"
+                data-testid="task-edit-submit"
                 class="w-full bg-violet-800 hover:bg-violet-950 transition text-white py-3 rounded-lg font-medium shadow-md disabled:opacity-50"
             >
               {{ saving ? 'Zapisywanie...' : 'Zapisz zmiany' }}
